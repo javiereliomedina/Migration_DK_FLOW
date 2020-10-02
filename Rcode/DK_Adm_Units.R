@@ -49,7 +49,6 @@
   dk_comm <- read_sf("Rdata/COMM_RG_01M_2016_4326/COMM_RG_01M_2016_4326.shp") %>%
     filter(CNTR_CODE == "DK")
   
-
 # Plots ----
   plot(st_geometry(dk_country), border = "blue", col = "grey", main = "Country")
   plot(st_geometry(dk_regions), border = "blue", col = "grey", main = "Regions")
