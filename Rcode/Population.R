@@ -28,8 +28,8 @@
                  values_to = "Pop", 
                  values_drop_na = TRUE) %>%
     mutate(Year = gsub("Q", "", Year),
-           Quarter = as.integer(Year),
-           Quarter = as_date_yq(Quarter),
+           Year = as.integer(Year),
+           Quarter = as_date_yq(Year),
            Quarter = last_of_quarter(Quarter)
            ) -> pop_quarter 
         
@@ -75,8 +75,11 @@
   ggsave("Rresults/pop_lau_2008_2020_quarters_change.png", width = 37, height = 37, units = "cm")
 
 
-# Change by quarter
+# Animation population change 
+## Select only first quarter of the year 
 
+  pop_quarter %>% 
+    filter()
 
   
 
