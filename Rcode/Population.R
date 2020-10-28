@@ -7,26 +7,49 @@
   library(readxl)
   library(gganimate)
   library(dint)
+  library(danstat)
 
-# Population ----
-# Population by year (2008-2020 Q1) by gender and status 
-# Data download from https://www.statbank.dk/10021
+# Data load ----
+# Total population at the first day of the quarter (2008Q1 - 2020Q3) 
+# Data from Statistic Denmark: https://www.statbank.dk/10021 (load with {danstat})
+  get_subjects()
 
-# Data: Total population by quarter ----
-## FOLK1A: Population at the first day of the quarter by region, sex, age and marital status
-## REGION: municipalities
-## SEX: NA
-## AGE: NA
-## MARITAL STATUS: NA
-## QUARTER: select all
-## Export as excel: pop_dk_year_quarter_2008_2020.xlsx
-  read_xlsx("Rdata/Statistics_DK/pop_dk_year_quarter_2008_2020.xlsx", skip = 2)  %>%
-    rename(LAU_NAME = "...1") %>% 
+## Subjects of interest (Population and elections - 02)
+  subj <- get_subjects(subjects = "02")
+  sub_subj <- subj$subjects %>% bind_rows()
+
+## Getting table information and variables
+## Population and population projections (2401)
+  tables <- get_tables(subjects = "2401")
+  tables %>% select(id, text, variables) 
+
+## Metadata table of interest (e.g. FOLK1A)
+  var_pop <- get_table_metadata(table_id = "FOLK1A", variables_only = TRUE)
+  var_pop %>% select(id, text)
+  var_pop$values
+  
+## pull the needed data from the API
+  
+### Variables we would like to get data
+### e.g. OMRÅDE - regions, Tid - time
+  var_codes <- c("OMRÅDE", "Tid")
+
+### Construct a list with variable code-values pairs 
+### NA - extract all values for a variable code (e.g. Tid)
+### ID of Municipalities - LAUs (values of OMRÅDE to extract; id > 100)
+  var_pop$values[1] 
+  id_muni <- as.numeric(var_pop$values[[1]]$id)
+  id_muni <- id_muni[id_muni > 100]
+  var_values <- list(id_muni, NA)   
+  var_input <- purrr::map2(.x = var_codes, .y = var_values, .f = ~list(code = .x, values = .y))
+  
+### Get data 
+  get_data("FOLK1A", variables = var_input) %>%
+    rename(LAU_NAME = OMRÅDE,
+           Year = TID, 
+           Pop = INDHOLD) %>% 
     mutate(LAU_NAME = gsub("Copenhagen", "København", LAU_NAME)) %>% 
-    pivot_longer(cols = starts_with("20"),
-                 names_to = "Year",
-                 values_to = "Pop", 
-                 values_drop_na = TRUE) %>%
+    arrange(LAU_NAME, Year) %>%
     mutate(Date = gsub("Q", "", Year),
            Date = as.integer(Date),
            Date = as_date_yq(Date),
@@ -36,7 +59,7 @@
     mutate(Year = as.integer(Year),
            Quarter = as.integer(Quarter)) %>% 
     arrange(LAU_NAME, Year, Quarter) -> pop_quarter 
-        
+ 
 # Plots population variation by quarter ----
 
 ## Total population
