@@ -30,7 +30,7 @@
     mutate(Date = gsub("Q", "", Year),
            Date = as.integer(Date),
            Date = as_date_yq(Date),
-           Date = last_of_quarter(Date)
+           Date = first_of_quarter(Date)
     ) %>% 
     separate(Year, c("Year", "Quarter"), sep = "Q") %>% 
     mutate(Year = as.integer(Year),
@@ -78,11 +78,48 @@
 
   ggsave("Rresults/pop_lau_2008_2020_quarters_change.png", width = 37, height = 37, units = "cm")
 
+# Spatial plots ----
 
-# Animation population change 
-## Select only first quarter of the year 
-
- 
+## Link with LAUs
+  dk_lau_pop_quarter <- dk_lau %>% 
+    left_join(pop_quarter, by = "LAU_NAME") %>% 
+    st_as_sf() %>% 
+    arrange(LAU_NAME, Year) %>% 
+    mutate(Year = as.character(Year))
+  
+## Change in 2020 
+  ggplot() +
+    geom_sf(data = filter(dk_lau_pop_quarter, Year == 2020, Quarter == 3), aes(fill = pct_change_2008)) +
+    scale_fill_gradient2(name = "Change [%]",
+                         low = "red",
+                         mid = "white",
+                         high = "blue",
+                         midpoint = 0) +
+    labs(title = "Population in Denmark",
+         subtitle = "Change between 2008-Q1 and 2020-Q3") +
+    theme_bw()
+   
+  ggsave("Rresults/sp_pop_lau_2008_2020_change.png", width = 20, height = 20, units = "cm")
+  
+## Animation
+  anim <- ggplot() +
+    # Not sure why I got an error if all the data are selected
+    # and I filter the first date (baseline: 2008-Q1)
+    geom_sf(data = filter(dk_lau_pop_quarter, Date > "2008-01-01"), aes(fill = pct_change_2008)) +
+    scale_fill_gradient2(name = "Change [%]",
+                         low = "red",
+                         mid = "white",
+                         high = "blue",
+                         midpoint = 0) +
+    labs(title = "Population change of Denmark (baseline 2008-Q1)",
+         subtitle = "{closest_state}") +
+    transition_states(Date, wrap = FALSE) +
+    theme_bw()
+  
+## export as .gif
+  anim_save("Rresults/sp_pop_lau_2008_2020_change_anim.gif", anim)
+  
+  
   
   
 
