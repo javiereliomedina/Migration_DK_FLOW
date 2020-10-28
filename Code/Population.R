@@ -99,7 +99,7 @@
                        labels = scales::number_format(accuracy = 1)) +
     scale_x_date(date_breaks = "3 year", date_labels = "%y")
 
-  ggsave("Rresults/pop_lau_2008_2020_quarters_change.png", width = 37, height = 37, units = "cm")
+  ggsave("Results/pop_lau_2008_2020_quarters_change.png", width = 37, height = 37, units = "cm")
 
 # Spatial plots ----
 
@@ -122,7 +122,7 @@
          subtitle = "Change between 2008-Q1 and 2020-Q3") +
     theme_bw()
    
-  ggsave("Rresults/sp_pop_lau_2008_2020_change.png", width = 20, height = 20, units = "cm")
+  ggsave("Results/sp_pop_lau_2008_2020_change.png", width = 20, height = 20, units = "cm")
   
 ## Animation
   anim <- ggplot() +
@@ -140,5 +140,5 @@
     theme_bw()
   
 ## export as .gif
-  anim_save("Rresults/sp_pop_lau_2008_2020_change_anim.gif", anim)
+  anim_save("Results/sp_pop_lau_2008_2020_change_anim.gif", anim)
   
