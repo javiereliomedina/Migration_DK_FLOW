@@ -12,7 +12,7 @@
 # Population by year (2008-2020 Q1) by gender and status 
 # Data download from https://www.statbank.dk/10021
 
-# Data 1: Total population by quarter ----
+# Data: Total population by quarter ----
 ## FOLK1A: Population at the first day of the quarter by region, sex, age and marital status
 ## REGION: municipalities
 ## SEX: NA
@@ -20,64 +20,70 @@
 ## MARITAL STATUS: NA
 ## QUARTER: select all
 ## Export as excel: pop_dk_year_quarter_2008_2020.xlsx
-
-read_xlsx("Rdata/Statistics_DK/pop_dk_year_quarter_2008_2020.xlsx", skip = 2)  %>%
-  rename(LAU_NAME = "...1") %>% 
-  mutate(LAU_NAME = gsub("Copenhagen", "København", LAU_NAME)) %>% 
-  pivot_longer(cols = starts_with("20"),
-               names_to = "Year",
-               values_to = "Pop", 
-               values_drop_na = TRUE) %>%
-  mutate(Year = gsub("Q", "", Year),
-         Quarter = as.integer(Year),
-         Quarter = as_date_yq(Quarter),
-         Quarter = last_of_quarter(Quarter)
-         ) -> pop_quarter 
+  read_xlsx("Rdata/Statistics_DK/pop_dk_year_quarter_2008_2020.xlsx", skip = 2)  %>%
+    rename(LAU_NAME = "...1") %>% 
+    mutate(LAU_NAME = gsub("Copenhagen", "København", LAU_NAME)) %>% 
+    pivot_longer(cols = starts_with("20"),
+                 names_to = "Year",
+                 values_to = "Pop", 
+                 values_drop_na = TRUE) %>%
+    mutate(Year = gsub("Q", "", Year),
+           Quarter = as.integer(Year),
+           Quarter = as_date_yq(Quarter),
+           Quarter = last_of_quarter(Quarter)
+           ) -> pop_quarter 
         
-# Plot population variation by quarter
-ggplot(data = pop_quarter,
-       aes(x = Quarter,
-           y = Pop / 1000)) +
-  geom_line(colour = "#0072B2") +
-  facet_wrap(~LAU_NAME, scales = "free") +
-  theme_bw() +
-  theme(axis.text = element_text(size = 7),
-        axis.title = element_text(size = 11, face ="bold")) +
-  labs(title = "Population of Denmark by LAUs at the first day of the quarter (2008-Q1  to 2020-Q3)") +
-  scale_y_continuous(name = "x1000", labels = scales::number_format(accuracy = 0.1)) +
-  scale_x_date(date_breaks = "3 year", date_labels = "%y")
+# Plots population variation by quarter ----
 
-ggsave("Rresults/pop_lau_2008_2020_quarters.png", width = 37, height = 37, units = "cm")
+## Total population
+  ggplot(data = pop_quarter,
+         aes(x = Quarter,
+             y = Pop / 1000)) +
+    geom_line(colour = "#0072B2") +
+    facet_wrap(~LAU_NAME, scales = "free") +
+    theme_bw() +
+    theme(axis.text = element_text(size = 7),
+          axis.title = element_text(size = 11, face ="bold")) +
+    labs(title = "Population of Denmark by LAUs at the first day of the quarter (2008-Q1  to 2020-Q3)") +
+    scale_y_continuous(name = "x1000", labels = scales::number_format(accuracy = 0.1)) +
+    scale_x_date(date_breaks = "3 year", date_labels = "%y")
+  
+  ggsave("Rresults/pop_lau_2008_2020_quarters.png", width = 37, height = 37, units = "cm")
 
-# Standardize it to % change with 2008 as baseline
+## Standardize it to % change with 2008-Q1 as baseline
+  pop_quarter %>% 
+    group_by(LAU_NAME) %>% 
+    arrange(LAU_NAME, Year) %>% 
+    mutate(pct_change_2008 = (Pop/first(Pop) - 1) * 100) %>% 
+    ungroup() -> pop_quarter
+  
+  ggplot(data = pop_quarter,
+         aes(x = Quarter,
+             y = pct_change_2008)) +
+    geom_line(colour = "#0072B2") +
+    geom_hline(yintercept = 0, linetype = "dashed", colour = "grey") + 
+    facet_wrap(~LAU_NAME) +
+    theme_bw() +
+    theme(axis.text = element_text(size = 7),
+          axis.title = element_text(size = 11, face = "bold")) +
+    labs(title = "Population change of Denmark with 2008-Q1 as baseline") +
+    scale_y_continuous(name = "[%]",
+                       breaks = seq(-20, 35, 10),
+                       labels = scales::number_format(accuracy = 1)) +
+    scale_x_date(date_breaks = "3 year", date_labels = "%y")
 
-pop_quarter %>% 
-  group_by(LAU_NAME) %>% 
-  arrange(LAU_NAME, Year) %>% 
-  mutate(pct_change_2008 = (Pop/first(Pop) - 1) * 100) -> pop_quarter
-
-ggplot(data = pop_quarter,
-       aes(x = Quarter,
-           y = pct_change_2008)) +
-  geom_line(colour = "#0072B2") +
-  geom_hline(yintercept = 0, linetype = "dashed", colour = "grey") + 
-  facet_wrap(~LAU_NAME) +
-  theme_bw() +
-  theme(axis.text = element_text(size = 7),
-        axis.title = element_text(size = 11, face = "bold")) +
-  labs(title = "Population change of Denmark with 2008-Q1 as baseline") +
-  scale_y_continuous(name = "[%]",
-                     breaks = seq(-20, 35, 10),
-                     labels = scales::number_format(accuracy = 1)) +
-  scale_x_date(date_breaks = "3 year", date_labels = "%y")
-
-ggsave("Rresults/pop_lau_2008_2020_quarters_change.png", width = 37, height = 37, units = "cm")
+  ggsave("Rresults/pop_lau_2008_2020_quarters_change.png", width = 37, height = 37, units = "cm")
 
 
 # Change by quarter
 
 
   
+
+
+
+  
+
   
 ## Data 2 ----
 ## FOLK1A: Population at the first day of the quarter by region, sex, age and marital status
