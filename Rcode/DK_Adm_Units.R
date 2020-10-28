@@ -15,21 +15,13 @@
 
 
 # Nomenclature of Territorial Units for Statistics (NUTS) ----
-  dk_country <- gisco_get_countries(resolution = "01",
-                                    year = "2016",
-                                    country = "DNK")
+  dk_country <- gisco_get_countries(resolution = "01", year = "2016", country = "DNK")
   
-  dk_regions <- gisco_get_nuts(resolution = "01",
-                               year = "2016",
-                               country = "DNK",
-                               nuts_level = "2") %>% 
+  dk_regions <- gisco_get_nuts(resolution = "01", year = "2016", country = "DNK", nuts_level = "2") %>% 
     mutate(NAME_LATN = str_conv(NAME_LATN, "UTF-8"),
            NUTS_NAME = str_conv(NUTS_NAME, "UTF-8"))
     
-  dk_provinces <- gisco_get_nuts(resolution = "01",
-                                 year = "2016", 
-                                 country = "DNK",
-                                 nuts_level = "3") %>% 
+  dk_provinces <- gisco_get_nuts(resolution = "01", year = "2016", country = "DNK", nuts_level = "3") %>% 
     mutate(NAME_LATN  = str_conv(NUTS_NAME, "UTF-8"),
            NUTS_NAME  = str_conv(NUTS_NAME, "UTF-8"))
   
