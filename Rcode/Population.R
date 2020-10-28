@@ -27,17 +27,21 @@
                  names_to = "Year",
                  values_to = "Pop", 
                  values_drop_na = TRUE) %>%
-    mutate(Year = gsub("Q", "", Year),
-           Year = as.integer(Year),
-           Quarter = as_date_yq(Year),
-           Quarter = last_of_quarter(Quarter)
-           ) -> pop_quarter 
+    mutate(Date = gsub("Q", "", Year),
+           Date = as.integer(Date),
+           Date = as_date_yq(Date),
+           Date = last_of_quarter(Date)
+    ) %>% 
+    separate(Year, c("Year", "Quarter"), sep = "Q") %>% 
+    mutate(Year = as.integer(Year),
+           Quarter = as.integer(Quarter)) %>% 
+    arrange(LAU_NAME, Year, Quarter) -> pop_quarter 
         
 # Plots population variation by quarter ----
 
 ## Total population
   ggplot(data = pop_quarter,
-         aes(x = Quarter,
+         aes(x = Date,
              y = Pop / 1000)) +
     geom_line(colour = "#0072B2") +
     facet_wrap(~LAU_NAME, scales = "free") +
@@ -53,12 +57,12 @@
 ## Standardize it to % change with 2008-Q1 as baseline
   pop_quarter %>% 
     group_by(LAU_NAME) %>% 
-    arrange(LAU_NAME, Year) %>% 
+    arrange(LAU_NAME, Year, Quarter) %>% 
     mutate(pct_change_2008 = (Pop/first(Pop) - 1) * 100) %>% 
     ungroup() -> pop_quarter
   
   ggplot(data = pop_quarter,
-         aes(x = Quarter,
+         aes(x = Date,
              y = pct_change_2008)) +
     geom_line(colour = "#0072B2") +
     geom_hline(yintercept = 0, linetype = "dashed", colour = "grey") + 
@@ -78,9 +82,8 @@
 # Animation population change 
 ## Select only first quarter of the year 
 
-  pop_quarter %>% 
-    filter()
-
+ 
+  
   
 
 
