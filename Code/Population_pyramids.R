@@ -8,6 +8,7 @@
   library(dint)
   library(gganimate)
   library(patchwork)
+  library(gridExtra)
   
 # Load data ----
 
@@ -57,54 +58,90 @@
     mutate(Age = parse_number(Age), 
            Age = as.integer(Age)) -> pop_age 
 
-### Estimate population percentages by age 
+# Make some calculation 
+  
+## Population percentages 
   pop_age %>% 
     group_by(Date) %>% 
-    mutate(Pop_per = 100 * Pop / sum(Pop)) %>% 
+    mutate(Pop_per = 100 * Pop / sum(Pop)) %>%    
     ungroup() -> pop_age
  
+  
+## Summaries
+  pop_age %>% 
+    group_by(Date, Year, Quarter) %>%
+    summarise(Pop_total  = sum(Pop),
+              Age_mean   = weighted.mean(Age, Pop),
+              Age_median = median(rep(Age, times = Pop))) %>% 
+    ungroup() -> pop_age_sum
+  
 # Plots ----
   brks_x <- seq(0, 125, 10)
   brks_y <- seq(-1, 1, 0.2)
   lbls_y <- paste0(as.character(brks_y), "%")
   
-  dat_pyramid_2008Q1 <- filter(pop_age, Year == 2008, Quarter == 1)
-  dat_pyramid_2020Q3 <- filter(pop_age, Year == 2020, Quarter == 3)
+## Baseline (2008-Q1)
+  obj <- tibble(Year = 2008, Quarter = 1)
+  dat <- filter(pop_age, Year == obj$Year & Quarter == obj$Quarter)
+  table <- tribble(~Desc,       ~Value,
+                   "Total pop (mil)", filter(pop_age_sum, Year == obj$Year & Quarter == obj$Quarter)$Pop_total/1000, 
+                   "Mean age"       , filter(pop_age_sum, Year == obj$Year & Quarter == obj$Quarter)$Age_mean,
+                   "Median age"     , filter(pop_age_sum, Year == obj$Year & Quarter == obj$Quarter)$Age_median) %>% 
+    mutate(Value = round(Value, 1))
   
-  p_2008Q1 <- ggplot() + 
-    geom_bar(data = filter(dat_pyramid_2008Q1, Gender == "Women"),
+  ggplot() + 
+    geom_bar(data = filter(dat, Gender == "Women"),
              aes(x = Age, y = Pop_per, fill = Gender),
              stat = "identity", 
              width = 1) + 
-    geom_bar(data = filter(dat_pyramid_2008Q1, Gender == "Men"),
+    geom_bar(data = filter(dat, Gender == "Men"),
              aes(x = Age, y = -Pop_per, fill = Gender), 
              stat = "identity",
              width = 1) + 
-    scale_y_continuous(name = NULL, breaks = brks_y, labels = lbls_y) +
+    scale_y_continuous(name = NULL, breaks = brks_y, labels = lbls_y, limits = c(-0.85, 0.85)) +
     scale_x_continuous(name = "Age", breaks = brks_x, labels = brks_x, limits = c(0, 105)) + 
     coord_flip() + 
     labs(title = "Population pyramid of Denmark",
          subtitle = "Date: 2008-01-01") +
     scale_fill_manual(values = c("#0072B2", "#D55E00")) +
-    theme_bw()
+    theme_bw() +
+    annotation_custom(tableGrob(table,
+                                rows = NULL,
+                                theme = ttheme_minimal(base_size = 7)),
+                      xmin = 80, xmax = 110,
+                      ymin = -0.8, ymax = -0.3) -> p_2008Q1
   
-  p_2020Q3 <- ggplot() + 
-    geom_bar(data = filter(dat_pyramid_2020Q3, Gender == "Women"),
+## 2020-Q3
+  obj <- tibble(Year = 2020, Quarter = 3)
+  dat <- filter(pop_age, Year == obj$Year & Quarter == obj$Quarter)
+  table <- tribble(~Desc,       ~Value,
+                   "Total pop (mil)", filter(pop_age_sum, Year == obj$Year & Quarter == obj$Quarter)$Pop_total/1000, 
+                   "Mean age"       , filter(pop_age_sum, Year == obj$Year & Quarter == obj$Quarter)$Age_mean,
+                   "Median age"     , filter(pop_age_sum, Year == obj$Year & Quarter == obj$Quarter)$Age_median) %>% 
+    mutate(Value = round(Value, 1))
+  
+  ggplot() + 
+    geom_bar(data = filter(dat, Gender == "Women"),
              aes(x = Age, y = Pop_per, fill = Gender),
              stat = "identity", 
              width = 1) + 
-    geom_bar(data = filter(dat_pyramid_2020Q3, Gender == "Men"),
+    geom_bar(data = filter(dat, Gender == "Men"),
              aes(x = Age, y = -Pop_per, fill = Gender), 
              stat = "identity",
              width = 1) + 
-    scale_y_continuous(name = NULL, breaks = brks_y, labels = lbls_y) +
+    scale_y_continuous(name = NULL, breaks = brks_y, labels = lbls_y, limits = c(-0.85, 0.85)) +
     scale_x_continuous(name = "Age", breaks = brks_x, labels = brks_x, limits = c(0, 105)) + 
     coord_flip() + 
     labs(title = "",
          subtitle = "Date: 2020-07-01") +
     scale_fill_manual(values = c("#0072B2", "#D55E00")) +
-    theme_bw()
-  
+    theme_bw() +
+    annotation_custom(tableGrob(table,
+                                rows = NULL,
+                                theme = ttheme_minimal(base_size = 7)),
+                      xmin = 80, xmax = 110,
+                      ymin = -0.8, ymax = -0.3) -> p_2020Q3
+## Plot together
   p_2008Q1 + p_2020Q3 + plot_layout(guides = 'collect')  
   ggsave("Results/pop_pyramid_2008_2020.png", width = 25, height = 12, units = "cm")
   
