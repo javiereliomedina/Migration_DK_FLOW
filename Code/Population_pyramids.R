@@ -114,13 +114,17 @@
                    fill = Gender), 
                stat = "identity",
                width = 1) + 
+      geom_segment(aes(x = 3.5, xend = 3.5, y = -4, yend = 4), linetype = "dashed") +
+      geom_segment(aes(x = 13, xend = 13, y = -4, yend = 4), linetype = "dashed") +
       scale_y_continuous(name = NULL, breaks = brks_y, labels = lbls_y, limits = lmts_y) +
       scale_x_discrete(name = "Age", drop = TRUE) +
       coord_flip() + 
       labs(title = "Population pyramid of danish immigrans",
            subtitle = paste("Date", first(df$Date), sep = ": ")) +
       scale_fill_manual(values = c("#0072B2", "#D55E00")) +
-      theme_bw()
+      theme_bw() +
+      theme(axis.text = element_text(size = 7),
+            axis.title = element_text(size = 11, face ="bold"))
   }
   
 ## Baseline (2008-Q1 = 20081)
@@ -183,6 +187,8 @@
                  fill = Gender), 
              stat = "identity",
              width = 1) + 
+    geom_segment(aes(x = 3.5, xend = 3.5, y = -4, yend = 4), linetype = "dashed") +
+    geom_segment(aes(x = 13, xend = 13, y = -4, yend = 4), linetype = "dashed") +
     scale_y_continuous(name = NULL, breaks = brks_y, labels = lbls_y, limits = lmts_y) +
     scale_x_discrete(name = "Age", drop = TRUE) + 
     coord_flip() + 
