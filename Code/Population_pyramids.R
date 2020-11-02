@@ -56,12 +56,8 @@
     mutate(Year = as.integer(Year),
            Quarter = as.integer(Quarter)) %>% 
     mutate(Age = parse_number(Age), 
-           Age = as.integer(Age)) -> pop_age 
-
-# Make some calculation 
-  
-## Population percentages 
-  pop_age %>% 
+           Age = as.integer(Age))  %>% 
+    # Population percentages 
     group_by(Date) %>% 
     mutate(Pop_per = 100 * Pop / sum(Pop)) %>%    
     ungroup() -> pop_age
@@ -101,11 +97,11 @@
 ## Population pyramids ----
 ## Aux. function for plotting population pyramids
 ## Add only the year and quarter (YQ) we would like to plot (e.g. 20081)
-  plot_pyramid <- function(YQ) {
+  plot_pyramid <- function(df, YQ) {
     brks_x <- seq(0, 125, 10)
     brks_y <- seq(-1, 1, 0.2)
     lbls_y <- paste0(as.character(brks_y), "%")
-    df_plot <- filter(pop_age, Date ==  first_of_quarter(as_date_yq(YQ)))
+    df_plot <- filter(df, Date ==  first_of_quarter(as_date_yq(YQ)))
     ggplot() + 
     geom_bar(data = filter(df_plot, Gender == "Women"),
              aes(x = Age, y = Pop_per, fill = Gender),
@@ -133,7 +129,7 @@
                    "Median age"     , filter(pop_age_sum, Date ==  first_of_quarter(as_date_yq(YQ)))$Age_median) %>% 
     mutate(Value = round(Value, 1))
 
-  plot_pyramid(YQ) +
+  plot_pyramid(pop_age, YQ) +
     annotation_custom(tableGrob(table,
                                 rows = NULL,
                                 theme = ttheme_minimal(base_size = 7)),
