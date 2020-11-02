@@ -66,16 +66,39 @@
     mutate(Pop_per = 100 * Pop / sum(Pop)) %>%    
     ungroup() -> pop_age
  
-  
 ## Table with summaries statistic
   pop_age %>% 
     group_by(Date, Year, Quarter) %>%
     summarise(Pop_total  = sum(Pop),
               Age_mean   = weighted.mean(Age, Pop),
-              Age_median = median(rep(Age, times = Pop))) %>% 
+              # Age_median = median(rep(Age, times = Pop)),
+              Age_median = matrixStats::weightedMedian(Age, Pop)
+              ) %>% 
     ungroup() -> pop_age_sum
   
 # Plots ----
+
+## Population growth ----
+  ggplot() +
+    geom_line(data = pop_age_sum, aes(x = Date, y = Pop_total/1000)) +
+    labs(title = "Denmark population (2008 - 2020)",
+         subtitle = "Total population",
+         y = "x1000") +
+    theme_bw() -> p1
+  
+  ggplot() +
+    geom_line(data = pop_age_sum, aes(x = Date, y = Age_median, colour = "Median")) +
+    geom_line(data = pop_age_sum, aes(x = Date, y = Age_mean , colour = "Mean")) +
+    scale_colour_discrete(name = "Value") +
+    labs(title = "",
+         subtitle = "Age structure", 
+         y = "Age") +
+    theme_bw() -> p2
+  
+  p1 + p2
+  ggsave("Results/pop_summary_2008_2020.png", width = 25, height = 12, units = "cm")
+   
+## Population pyramids ----
 ## Aux. function for plotting population pyramids
 ## Add only the year and quarter (YQ) we would like to plot (e.g. 20081)
   plot_pyramid <- function(YQ) {
