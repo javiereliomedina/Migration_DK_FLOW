@@ -67,7 +67,7 @@
     ungroup() -> pop_age
  
   
-## Summaries
+## Table with summaries statistic
   pop_age %>% 
     group_by(Date, Year, Quarter) %>%
     summarise(Pop_total  = sum(Pop),
@@ -76,25 +76,19 @@
     ungroup() -> pop_age_sum
   
 # Plots ----
-  brks_x <- seq(0, 125, 10)
-  brks_y <- seq(-1, 1, 0.2)
-  lbls_y <- paste0(as.character(brks_y), "%")
-  
-## Baseline (2008-Q1)
-  obj <- tibble(Year = 2008, Quarter = 1)
-  dat <- filter(pop_age, Year == obj$Year & Quarter == obj$Quarter)
-  table <- tribble(~Desc,       ~Value,
-                   "Total pop (mil)", filter(pop_age_sum, Year == obj$Year & Quarter == obj$Quarter)$Pop_total/1000, 
-                   "Mean age"       , filter(pop_age_sum, Year == obj$Year & Quarter == obj$Quarter)$Age_mean,
-                   "Median age"     , filter(pop_age_sum, Year == obj$Year & Quarter == obj$Quarter)$Age_median) %>% 
-    mutate(Value = round(Value, 1))
-  
-  ggplot() + 
-    geom_bar(data = filter(dat, Gender == "Women"),
+## Aux. function for plotting population pyramids
+## Add only the year and quarter (YQ) we would like to plot (e.g. 20081)
+  plot_pyramid <- function(YQ) {
+    brks_x <- seq(0, 125, 10)
+    brks_y <- seq(-1, 1, 0.2)
+    lbls_y <- paste0(as.character(brks_y), "%")
+    df_plot <- filter(pop_age, Date ==  first_of_quarter(as_date_yq(YQ)))
+    ggplot() + 
+    geom_bar(data = filter(df_plot, Gender == "Women"),
              aes(x = Age, y = Pop_per, fill = Gender),
              stat = "identity", 
              width = 1) + 
-    geom_bar(data = filter(dat, Gender == "Men"),
+    geom_bar(data = filter(df_plot, Gender == "Men"),
              aes(x = Age, y = -Pop_per, fill = Gender), 
              stat = "identity",
              width = 1) + 
@@ -102,45 +96,44 @@
     scale_x_continuous(name = "Age", breaks = brks_x, labels = brks_x, limits = c(0, 105)) + 
     coord_flip() + 
     labs(title = "Population pyramid of Denmark",
-         subtitle = "Date: 2008-01-01") +
+         subtitle = paste("Date", first_of_quarter(as_date_yq(YQ)), sep = ": ")) +
     scale_fill_manual(values = c("#0072B2", "#D55E00")) +
-    theme_bw() +
+    theme_bw()
+  }
+
+## Baseline (2008-Q1 = 20081)
+## Add a table with summary data (Totla population, mean age, median age) 
+  YQ <- 20081
+  table <- tribble(~Desc, ~Value,
+                   "Total pop (mil)", filter(pop_age_sum, Date ==  first_of_quarter(as_date_yq(YQ)))$Pop_total/1000, 
+                   "Mean age"       , filter(pop_age_sum, Date ==  first_of_quarter(as_date_yq(YQ)))$Age_mean,
+                   "Median age"     , filter(pop_age_sum, Date ==  first_of_quarter(as_date_yq(YQ)))$Age_median) %>% 
+    mutate(Value = round(Value, 1))
+
+  plot_pyramid(YQ) +
     annotation_custom(tableGrob(table,
                                 rows = NULL,
                                 theme = ttheme_minimal(base_size = 7)),
                       xmin = 80, xmax = 110,
                       ymin = -0.8, ymax = -0.3) -> p_2008Q1
-  
-## 2020-Q3
-  obj <- tibble(Year = 2020, Quarter = 3)
-  dat <- filter(pop_age, Year == obj$Year & Quarter == obj$Quarter)
-  table <- tribble(~Desc,       ~Value,
-                   "Total pop (mil)", filter(pop_age_sum, Year == obj$Year & Quarter == obj$Quarter)$Pop_total/1000, 
-                   "Mean age"       , filter(pop_age_sum, Year == obj$Year & Quarter == obj$Quarter)$Age_mean,
-                   "Median age"     , filter(pop_age_sum, Year == obj$Year & Quarter == obj$Quarter)$Age_median) %>% 
+
+## 2020-Q3 (20203)
+  YQ <- 20203
+  table <- tribble(~Desc, ~Value,
+                   "Total pop (mil)", filter(pop_age_sum, Date ==  first_of_quarter(as_date_yq(YQ)))$Pop_total/1000, 
+                   "Mean age"       , filter(pop_age_sum, Date ==  first_of_quarter(as_date_yq(YQ)))$Age_mean,
+                   "Median age"     , filter(pop_age_sum, Date ==  first_of_quarter(as_date_yq(YQ)))$Age_median) %>% 
     mutate(Value = round(Value, 1))
   
-  ggplot() + 
-    geom_bar(data = filter(dat, Gender == "Women"),
-             aes(x = Age, y = Pop_per, fill = Gender),
-             stat = "identity", 
-             width = 1) + 
-    geom_bar(data = filter(dat, Gender == "Men"),
-             aes(x = Age, y = -Pop_per, fill = Gender), 
-             stat = "identity",
-             width = 1) + 
-    scale_y_continuous(name = NULL, breaks = brks_y, labels = lbls_y, limits = c(-0.85, 0.85)) +
-    scale_x_continuous(name = "Age", breaks = brks_x, labels = brks_x, limits = c(0, 105)) + 
-    coord_flip() + 
+  plot_pyramid(YQ) +
     labs(title = "",
-         subtitle = "Date: 2020-07-01") +
-    scale_fill_manual(values = c("#0072B2", "#D55E00")) +
-    theme_bw() +
+         subtitle = paste("Date", first_of_quarter(as_date_yq(YQ)), sep = ": ")) +
     annotation_custom(tableGrob(table,
                                 rows = NULL,
                                 theme = ttheme_minimal(base_size = 7)),
                       xmin = 80, xmax = 110,
                       ymin = -0.8, ymax = -0.3) -> p_2020Q3
+  
 ## Plot together
   p_2008Q1 + p_2020Q3 + plot_layout(guides = 'collect')  
   ggsave("Results/pop_pyramid_2008_2020.png", width = 25, height = 12, units = "cm")
