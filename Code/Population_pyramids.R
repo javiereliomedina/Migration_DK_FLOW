@@ -144,7 +144,7 @@
                    "Median age"     , filter(pop_age_sum, Date ==  first_of_quarter(as_date_yq(YQ)))$Age_median) %>% 
     mutate(Value = round(Value, 1))
   
-  plot_pyramid(YQ) +
+  plot_pyramid(pop_age, YQ) +
     labs(title = "",
          subtitle = paste("Date", first_of_quarter(as_date_yq(YQ)), sep = ": ")) +
     annotation_custom(tableGrob(table,
