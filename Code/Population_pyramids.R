@@ -99,8 +99,8 @@
 ## Add only the year and quarter (YQ) we would like to plot (e.g. 20081)
   plot_pyramid <- function(df) {
     brks_y <- seq(-4, 4, 1)
-    lmts_y = c(min(brks_y), max(brks_y))
-    lbls_y <- paste0(as.character(brks_y), "%")
+    lmts_y <- c(min(brks_y), max(brks_y))
+    lbls_y <- paste0(as.character(abs(brks_y)), "%")
     ggplot() + 
       geom_bar(data = filter(df, Gender == "Women"),
                aes(x = cut_interval(Age, length = 5, right = FALSE),
