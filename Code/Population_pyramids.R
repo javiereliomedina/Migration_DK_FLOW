@@ -169,36 +169,16 @@
 # Animations ----
 # Not sure why I got an error if all the data are selected
 # and I've removed the first date (baseline: 2008-Q1)
-  dat_pyramid <- filter(pop_age, Date > "2008-01-01")
-  
-  brks_y <- seq(-4, 4, 1)
-  lmts_y = c(min(brks_y), max(brks_y))
-  lbls_y <- paste0(as.character(brks_y), "%")
-  ggplot() + 
-    geom_bar(data = filter(dat_pyramid, Gender == "Women"),
-             aes(x = cut_interval(Age, length = 5, right = FALSE),
-                 y = Pop_per,
-                 fill = Gender),
-             stat = "identity", 
-             width = 1) + 
-    geom_bar(data = filter(dat_pyramid, Gender == "Men"),
-             aes(x = cut_interval(Age, length = 5, right = FALSE),
-                 y = -Pop_per,
-                 fill = Gender), 
-             stat = "identity",
-             width = 1) + 
-    geom_segment(aes(x = 3.5, xend = 3.5, y = -4, yend = 4), linetype = "dashed") +
-    geom_segment(aes(x = 13, xend = 13, y = -4, yend = 4), linetype = "dashed") +
-    scale_y_continuous(name = NULL, breaks = brks_y, labels = lbls_y, limits = lmts_y) +
-    scale_x_discrete(name = "Age", drop = TRUE) + 
-    coord_flip() + 
+  plot_pyramid(filter(pop_age, Date > "2008-01-01")) + 
     transition_states(Date, wrap = FALSE) +
     labs(title = "Population pyramid of Denmark",
-         subtitle = "Date: {closest_state}") +
-    scale_fill_manual(values = c("#0072B2", "#D55E00")) +
-    theme_bw() -> anim
+         subtitle = "Date: {closest_state}") -> anim
   
   anim_save("Results/pop_pyramid_2008_2020_anim.gif", anim)
   
+  
+  
+    
+    
   
   
