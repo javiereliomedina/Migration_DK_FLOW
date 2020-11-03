@@ -119,7 +119,7 @@
       scale_y_continuous(name = NULL, breaks = brks_y, labels = lbls_y, limits = lmts_y) +
       scale_x_discrete(name = "Age", drop = TRUE) +
       coord_flip() + 
-      labs(title = "Population pyramid of danish immigrans",
+      labs(title = "Population pyramid of Denmark",
            subtitle = paste("Date", first(df$Date), sep = ": ")) +
       scale_fill_manual(values = c("#0072B2", "#D55E00")) +
       theme_bw() +
@@ -175,10 +175,5 @@
          subtitle = "Date: {closest_state}") -> anim
   
   anim_save("Results/pop_pyramid_2008_2020_anim.gif", anim)
-  
-  
-  
-    
-    
   
   
