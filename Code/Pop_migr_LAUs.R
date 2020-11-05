@@ -11,6 +11,7 @@
   library(gridExtra)
   library(forcats)
   library(RColorBrewer)
+  library(furrr)
 
 # Load data ----
 ## Data from Statistic Denmark: https://www.statbank.dk/10021 (load with {danstat})
@@ -34,27 +35,32 @@
 ## Ged data
 ## API - Max. number of selected data = 100000
 ## loop by quarter for getting the data (without age groups)
+  steps <- function(quarter){
+    var_values <- list(id_muni, id_gender, id_citizen, quarter)
+    var_input <- purrr::map2(.x = var_codes, .y = var_values, .f = ~list(code = .x, values = .y))
+    get_data("FOLK1B", variables = var_input)
+  }
+  
+  # Codes for var_input
   var_codes <- c("OMRÅDE", "KØN", "STATSB", "Tid")
-  # Data by LAUs
+  # Values for var_input
+  ## Data by LAUs
   id_muni <- as.numeric(var_pop$values[[1]]$id)
   id_muni <- id_muni[id_muni > 100]
-  # Gender: Men/Women
+  ## Gender: Men/Women
   id_gender <- c(1, 2)
-  # Data by countries (remove total)
+  ## Data by countries (remove total)
   id_citizen <- as.numeric(var_pop$values[[4]]$id)
   id_citizen <- id_citizen[id_citizen > 0]
-  # Quarters
-  # quarter_year <- paste0(2008:2020, "K1") # First quarter
-  quarter_year <- var_pop$values[[5]]$id # All data 
-  pop_ctzn <- list()
-  for (i in seq_along(quarter_year)){
-    id_quarter <- quarter_year[i]
-    var_values <- list(id_muni, id_gender, id_citizen, id_quarter)   
-    var_input <- purrr::map2(.x = var_codes, .y = var_values, .f = ~list(code = .x, values = .y))
-    pop_ctzn[[i]] <- get_data("FOLK1B", variables = var_input)  
-    }
+  ## Quarters
+  id_quarter <- var_pop$values[[5]]$id 
+  # Parallel process with {future}
+  plan(multiprocess)  
+  pop_ctzn <- id_quarter %>% future_map(steps)
   pop_ctzn <- bind_rows(pop_ctzn)
-
+  plan("default")
+  
+# Clean column names and format some data
   pop_ctzn %>% 
     rename(LAU_NAME = OMRÅDE,
            Gender = KØN,
@@ -65,7 +71,7 @@
       mutate(Date = gsub("Q", "", Date),
              Date = as_date_yq(as.integer(Date)),
              Date = first_of_quarter(Date)) -> pop_ctzn
-
+  
 # Foreign population ---- 
   pop_ctzn %>% 
     filter(Citizen != "Denmark", Pop > 0) %>% 
