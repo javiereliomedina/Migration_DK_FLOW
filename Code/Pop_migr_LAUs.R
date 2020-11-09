@@ -132,53 +132,52 @@
     left_join(filter(pop_migr, Date == as.Date("2020-07-01")), by = "LAU_NAME") %>% 
     st_as_sf() -> pop_migr_lau_2020Q3
   
-  
 # Plot total foreign citizens by LAU 
+
+## Total foreign population by LAU
   pop_migr_lau_2020Q3 %>% 
     filter(Gender == "Total") %>% 
     group_by(LAU_NAME) %>% 
     summarise(Pop = sum(Pop)) %>% 
     arrange(-Pop) %>% 
     ungroup() %>% 
-    mutate(Pop_pct = 100 * Pop/sum(Pop)) -> pop_migr_lau_2020Q3_total
-  
-  ggplot() +
-    geom_sf(data = pop_migr_lau_2020Q3_total, aes(fill = Pop_pct)) +
-    scale_fill_viridis(name = "Pop [%]", option = "magma", direction = -1) +
-    labs(title = "Foreign citizens in the third quarter of 2020",
-         subtitle = paste("All nationalities:",
-                          sum(pop_migr_lau_2020Q3_total$Pop),
-                          "inhabitants")) +
-    theme_bw()
-  
-  
+    mutate(Pop_pct = 100 * Pop/sum(Pop),
+           Citizen = "Total foreigners") %>% 
+    select(LAU_NAME, Citizen, Pop, Pop_pct) -> pop_migr_lau_2020Q3_total
+
+## Top 5 citizen groups 
   top_5_migr_groups <- c("Poland", "Syria", "Romania", "Turkey", "Germany")
-  sum_pop <- function(Country) {
-    sum(filter(pop_migr_lau_2020Q3, Gender == "Total", Citizen == Country)$Pop)
-  }
-  labels <- c(paste("Poland \n(" , sum_pop("Poland"), " inhabitants)", sep = ""),
-              paste("Syria \n("  , sum_pop("Syria"), " inhabitants)", sep = ""),
-              paste("Romania \n(", sum_pop("Romania"), " inhabitants)", sep = ""),
-              paste("Turkey \n(" , sum_pop("Turkey"), " inhabitants)", sep = ""),
-              paste("Germany \n(", sum_pop("Germany"), " inhabitants)", sep = "")
-              )
   pop_migr_lau_2020Q3 %>% 
-    filter(Gender == "Total") %>% 
-    filter(Citizen %in% top_5_migr_groups) %>% 
+    filter(Gender == "Total",
+           Citizen %in% top_5_migr_groups) %>% 
     group_by(Citizen) %>% 
     mutate(Pop_pct = 100 * Pop / sum(Pop)) %>% 
-    mutate(Citizen = factor(Citizen, 
-                            levels = top_5_migr_groups,
-                            labels = labels)) -> pop_migr_lau_2020Q3_top_groups
-    
+    select(LAU_NAME, Citizen, Pop, Pop_pct) -> pop_migr_lau_2020Q3_top_groups
   
+## Plot
+  # Combine data frames
+  sum_pop <- function(Country) {
+    sum(filter(bind_rows(pop_migr_lau_2020Q3_total, pop_migr_lau_2020Q3_top_groups), Citizen == Country)$Pop)
+  }
+  levels <- c("Total foreigners", top_5_migr_groups)
+  labels <- c(paste("Total foreigners \n(" , sum_pop("Total foreigners"), " inhabitants)", sep = ""),
+              paste("Polish citizens \n(" , sum_pop("Poland"), " inhabitants)", sep = ""),
+              paste("Syrian citizens \n("  , sum_pop("Syria"), " inhabitants)", sep = ""),
+              paste("Romanian citizens \n(", sum_pop("Romania"), " inhabitants)", sep = ""),
+              paste("Turkish citizens \n(" , sum_pop("Turkey"), " inhabitants)", sep = ""),
+              paste("German citizens \n(", sum_pop("Germany"), " inhabitants)", sep = "")
+              )
   
-  ggplot() +
-    geom_sf(data = pop_migr_lau_2020Q3_top_groups, aes(fill = Pop_pct)) +
-    scale_fill_viridis(name = "Pop [%]", option = "magma", direction = -1) +
-    labs(title = "Foreign citizens in the third quarter of 2020",
-         subtitle = "Top 5 nationalities") +
+  bind_rows(pop_migr_lau_2020Q3_total, pop_migr_lau_2020Q3_top_groups) %>% 
+    mutate(Citizen = factor(Citizen, levels = levels, labels = labels)) %>% 
+    ggplot() +
+    geom_sf(aes(fill = Pop_pct), color = "grey", size = 0.05) +
+    scale_fill_viridis(name = "Perc [%]", option = "magma", direction = -1) +
+    labs(title = "Where do foreign citizens live in Denmark?",
+         subtitle = "At the first day of the third quarter of 2020") +
     facet_wrap(~ Citizen, ncol = 2) +
     theme_bw()
+  
+  ggsave("Results/pop_ctzn_LAU_2020Q3.png", width = 21, height = 27.7, units = "cm")
   
   
