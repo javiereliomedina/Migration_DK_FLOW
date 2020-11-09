@@ -174,7 +174,7 @@
     geom_sf(aes(fill = Pop_pct), color = "grey", size = 0.05) +
     scale_fill_viridis(name = "Perc [%]", option = "magma", direction = -1) +
     labs(title = "Where do foreign citizens live in Denmark?",
-         subtitle = "At the first day of the third quarter of 2020") +
+         subtitle = "Denmark's municipalities (2020-Q3)") +
     facet_wrap(~ Citizen, ncol = 2) +
     theme_bw()
   
