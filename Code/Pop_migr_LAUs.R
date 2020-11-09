@@ -14,35 +14,26 @@
   library(furrr)
 
 # Load data ----
-## Data from Statistic Denmark: https://www.statbank.dk/10021 (load with {danstat})
-  get_subjects()
-
-## Subjects of interest (Population and elections - 02)
-  subj <- get_subjects(subjects = "02")
-  sub_subj <- subj$subjects %>% bind_rows()
-  sub_subj
-
-## Getting table information and variables
-## immigrants and their descendants (2402)
-  tables <- get_tables(subjects = "2402")
-  tables %>% select(id, text, variables) 
-
-## Metadata table of interest (e.g. KMSTA001)
-  var_pop <- get_table_metadata(table_id = "FOLK1B", variables_only = TRUE)
-  var_pop %>% select(id, text)
-  var_pop$values
-
-## Ged data
-## API - Max. number of selected data = 100000
-## loop by quarter for getting the data (without age groups)
+## Population by country of origin (Table FOLK1B)
+## Data from Statistic Denmark: https://www.statbank.dk/10021
+## Subjects of interest: Population and elections (02)
+## Immigrants and their descendants (2402)
+## Table FOLK1B (Population at the first day of the quarter by region, sex, age (5 years age groups) and citizenship (2008Q1-2020Q3))
+## Get data without age groups 
+  
+# loop by quarter for getting the data 
   steps <- function(quarter){
     var_values <- list(id_muni, id_gender, id_citizen, quarter)
     var_input <- purrr::map2(.x = var_codes, .y = var_values, .f = ~list(code = .x, values = .y))
     get_data("FOLK1B", variables = var_input)
   }
   
-  # Codes for var_input
-  var_codes <- c("OMRÅDE", "KØN", "STATSB", "Tid")
+# Codes for var_input
+  var_pop <- get_table_metadata(table_id = "FOLK1B", variables_only = TRUE)
+  var_pop %>% select(id, text)
+  var_pop$values
+ 
+   var_codes <- c("OMRÅDE", "KØN", "STATSB", "Tid")
   # Values for var_input
   ## Data by LAUs
   id_muni <- as.numeric(var_pop$values[[1]]$id)
