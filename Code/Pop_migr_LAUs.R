@@ -14,7 +14,7 @@
   library(furrr)
 
 # Load data ----
-## Population by country of origin (Table FOLK1B)
+## Population by citizenship (Table FOLK1B)
 ## Data from Statistic Denmark: https://www.statbank.dk/10021
 ## Subjects of interest: Population and elections (02)
 ## Immigrants and their descendants (2402)
