@@ -90,6 +90,7 @@
     group_by(Date) %>%
     filter(Total > 14000) %>% 
     ungroup() %>% 
+    # Reorder factors (shorted by Total population in 2020-Q3)
     mutate(Citizen = factor(Citizen), 
            Citizen = fct_reorder2(Citizen, Date, Total)) -> pop_migr_14k
   
