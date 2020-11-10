@@ -88,7 +88,10 @@
   pop_migr_DK %>%
     pivot_wider(c(Citizen, Date), names_from = Gender, values_from = Pop) %>% 
     group_by(Date) %>%
-    filter(Total > 14000) -> pop_migr_14k
+    filter(Total > 14000) %>% 
+    ungroup() %>% 
+    mutate(Citizen = factor(Citizen), 
+           Citizen = fct_reorder2(Citizen, Date, Total)) -> pop_migr_14k
   
   pop_migr_14k %>%
     ggplot() +
