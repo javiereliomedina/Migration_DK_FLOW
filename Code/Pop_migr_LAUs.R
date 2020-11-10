@@ -6,7 +6,6 @@
   library(tidyverse)
   library(readr)
   library(dint)
-  library(gganimate)
   library(patchwork)
   library(gridExtra)
   library(forcats)
