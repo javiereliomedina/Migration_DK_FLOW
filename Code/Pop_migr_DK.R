@@ -83,64 +83,6 @@
 
 # Plots ----
   
-## Population pyramids ----
-### Aux. function for plotting population pyramids 
-    plot_pyramid <- function(df) {
-      brks_y <- seq(-4, 4, 1)
-      lmts_y = c(min(brks_y), max(brks_y))
-      lbls_y <- paste0(as.character(abs(brks_y)), "%")
-      ggplot() + 
-        geom_bar(data = filter(df, Gender == "Women" & Citizen != "Total"),
-                 aes(x = cut_interval(Age, length = 5, right = FALSE),
-                     y = Pop_per,
-                     fill =  Citizen), 
-                 stat = "identity", 
-                 width = 1) + 
-        geom_bar(data = filter(df, Gender == "Men" & Citizen != "Total"),
-                 aes(x = cut_interval(Age, length = 5, right = FALSE),
-                     y = -Pop_per,
-                     fill = Citizen), 
-                 stat = "identity",
-                 width = 1) + 
-        geom_hline(yintercept = 0, colour = "grey10") +
-        annotate(geom = "text", y = 2,  x = 25, label = "Women", fontface = "bold") +
-        annotate(geom = "text", y = -2, x = 25, label = "Men", fontface = "bold") +
-        geom_segment(aes(x = 3.5, xend = 3.5, y = -4, yend = 4), linetype = "dashed") +
-        geom_segment(aes(x = 13, xend = 13, y = -4, yend = 4), linetype = "dashed") +
-        scale_y_continuous(name = NULL, breaks = brks_y, labels = lbls_y, limits = lmts_y) +
-        scale_x_discrete(name = "Age", drop = TRUE) +
-        coord_flip() + 
-        labs(title = "Population pyramid of danish immigrans",
-             subtitle = paste("Date", first(df$Date), sep = ": ")) +
-        scale_fill_manual(values = c("#0072B2", "#D55E00")) +
-        theme_bw() +
-        theme(axis.text = element_text(size = 7),
-              axis.title = element_text(size = 11, face ="bold"))
-    }
-
-### Plot baseline (2008Q1 - 20081)
-  filter(pop_ctzn_age, Date ==  first_of_quarter(as_date_yq(20081))) %>% 
-    plot_pyramid() -> p_2008Q1
-
-### Situation 2020Q3
-  filter(pop_ctzn_age, Date ==  first_of_quarter(as_date_yq(20203))) %>% 
-    plot_pyramid() +
-    labs(title = "") -> p_2020Q3
-  
-### Plot together
-  p_2008Q1 + p_2020Q3 + plot_layout(guides = 'collect')  
-  ggsave("Results/pop_pyramid_2008_2020_migr.png", width = 25, height = 12, units = "cm")
-
-## Animated population pyramid from 2008-2020 ----
-## Not sure why I got an error if all the data are selected
-## and I've removed the first date (baseline: 2008-Q1)
-  plot_pyramid(filter(pop_ctzn_age, Date > "2008-01-01")) + 
-    transition_states(Date, wrap = FALSE) +
-    labs(title = "Population pyramid of Denmark",
-         subtitle = "Date: {closest_state}") -> anim
-  
-  anim_save("Results/pop_pyramid_2008_2020_migr_anim.gif", anim)
-  
 ## Population growth ----
 
 ## Plots  
