@@ -54,24 +54,24 @@
     mutate(pop_per = 100 * pop / sum(pop)) %>%    
     ungroup() -> pop_ctzn_age 
 
-# Plots pyramids ----
+# Pre-process ----
   
-## Aux. function for plotting population pyramids 
-  geom_pyramid <- function(df) {
+## Aux. function plotting population pyramids 
+  geom_pyramid <- function(df, fill = gender) {
     brks_y <- seq(-4, 4, 1)
     lmts_y = c(min(brks_y), max(brks_y))
     lbls_y <- paste0(as.character(abs(brks_y)), "%")
     ggplot() + 
-      geom_bar(data = filter(df, gender == "Women"),
+      geom_bar(data = subset(df, gender == "Women"),
                aes(x = cut_interval(age, length = 5, right = FALSE),
                    y = pop_per,
-                   fill = citizen), 
+                   fill = {{ fill}}), 
                stat = "identity", 
                width = 1) + 
-      geom_bar(data = filter(df, gender == "Men"),
+      geom_bar(data = subset(df, gender == "Men"),
                aes(x = cut_interval(age, length = 5, right = FALSE),
                    y = -pop_per,
-                   fill = citizen), 
+                   fill = {{ fill }}), 
                stat = "identity",
                width = 1) + 
       geom_hline(yintercept = 0, colour = "grey10") +
@@ -80,25 +80,32 @@
       geom_segment(aes(x = 3.5, xend = 3.5, y = -4, yend = 4), linetype = "dashed") +
       geom_segment(aes(x = 13, xend = 13, y = -4, yend = 4), linetype = "dashed") +
       scale_y_continuous(name = NULL, breaks = brks_y, labels = lbls_y, limits = lmts_y) +
-      scale_x_discrete(name = "age", drop = TRUE) +
+      scale_x_discrete(name = "Age", drop = TRUE) +
       coord_flip() + 
-      labs(title = "Population pyramid of Denmark",
-           subtitle = paste("Date", first(df$date), sep = ": ")) +
-      scale_fill_manual(values = c("#0072B2", "#D55E00")) +
-      theme_bw() +
-      theme(axis.text = element_text(size = 7),
-            axis.title = element_text(size = 11, face = "bold"))
+      scale_fill_manual(values = c("#0072B2", "#D55E00"))
   }
-
-## Population pyramid 
-  # Baseline (2008Q1)
-  filter(pop_ctzn_age, date ==  first_of_quarter(as_date_yq(20081))) %>% 
-    geom_pyramid() -> p_2008Q1
   
-  # Situation 2020-Q3
+## Define theme
+  theme_pyramid <- function() {
+    theme_bw() +
+    theme(axis.text = element_text(size = 7),
+          axis.title = element_text(size = 11, face = "bold"))
+  }
+  
+## Plot population pyramid ---- 
+# Baseline (2008Q1)
+  filter(pop_ctzn_age, date ==  first_of_quarter(as_date_yq(20081))) %>% 
+    geom_pyramid(fill = citizen) + 
+    labs(title = "Population pyramid of Denmark",
+         subtitle = paste("Date", first_of_quarter(as_date_yq(20081)), sep = ": ")) +
+    theme_pyramid() -> p_2008Q1
+  
+# Situation in 2020-Q3
   filter(pop_ctzn_age, date ==  first_of_quarter(as_date_yq(20203))) %>% 
-    geom_pyramid() +
-    labs(title = "") -> p_2020Q3
+    geom_pyramid(fill = citizen) +
+    theme_pyramid() +
+    labs(title = "",
+         subtitle = paste("Date", first_of_quarter(as_date_yq(20203)), sep = ": ")) -> p_2020Q3
   
   p_2008Q1 + p_2020Q3 + plot_layout(guides = 'collect')  
   ggsave("Results/pop_pyramid_2008_2020_migr.png", width = 25, height = 12, units = "cm")
