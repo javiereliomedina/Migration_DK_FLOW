@@ -47,8 +47,8 @@
   id_citizen <- as.numeric(var_pop$values[[5]]$id)
   id_citizen <- id_citizen[id_citizen > 0]
   ## Quarters
-  id_quarter <- var_pop$values[[6]]$id   # Select all quarters
-  # id_quarter <- c("2008K1", "2020K4")  # Select only some years (e.g. 2008-Q1 and 2020-Q4)
+  # id_quarter <- var_pop$values[[6]]$id   # Select all quarters
+  id_quarter <- c("2008K1", "2020K4")  # Select only some years (e.g. 2008-Q1 and 2020-Q4)
   # Parallel process with {future}
   plan(multiprocess)  
   pop_DK <- id_quarter %>% future_map(steps)
@@ -89,7 +89,7 @@
 
 # Pre-process ----
 ## Aux. function plotting population pyramids 
-  geom_pyramid <- function(df, fill = gender) {
+  ggpyramid <- function(df, fill = gender) {
     brks_y <- seq(-4, 4, 1)
     lmts_y = c(min(brks_y), max(brks_y))
     lbls_y <- paste0(as.character(abs(brks_y)), "%")
@@ -126,7 +126,7 @@
 ## Plot population pyramid ---- 
 # Baseline (2008Q1)
   filter(pop_DK, date ==  first_of_quarter(as_date_yq(20081))) %>% 
-    geom_pyramid(fill = ancestry) + 
+    ggpyramid(fill = ancestry) + 
     scale_fill_manual(values = c("#0072B2", "#F0E442", "#D55E00")) + 
     labs(title = "Population pyramid of Denmark",
          subtitle = paste("Date", first_of_quarter(as_date_yq(20081)), sep = ": ")) +
@@ -134,7 +134,7 @@
   
 # Situation in 2020-Q3
   filter(pop_DK, date ==  first_of_quarter(as_date_yq(20204))) %>% 
-    geom_pyramid(fill = ancestry) + 
+    ggpyramid(fill = ancestry) + 
     scale_fill_manual(values = c("#0072B2", "#F0E442", "#D55E00")) +
     theme_pyramid() +
     labs(title = "",
@@ -147,7 +147,7 @@
 ## Not sure why I got an error if all the data are selected
 ## and I've removed 2008
   filter(pop_DK, date >= "2009-01-01") %>% 
-    geom_pyramid(fill = ancestry) + 
+    ggpyramid(fill = ancestry) + 
     scale_fill_manual(values = c("#0072B2", "#F0E442", "#D55E00")) +
     transition_states(date, wrap = FALSE) +
     labs(title = "Population pyramid of Denmark",
