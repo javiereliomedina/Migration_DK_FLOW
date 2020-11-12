@@ -11,6 +11,9 @@
   library(gridExtra)
   library(furrr)
   library(forcats)
+  
+  source("Code/ggpyramid.R")
+  source("Code/theme_plot.R")
 
 # Load data ----
 #' Data from Statistic Denmark: https://www.statbank.dk/10021 
@@ -87,71 +90,21 @@
     mutate(pop_per = 100 * pop / sum(pop)) %>%    
     ungroup() -> pop_DK
 
-# Pre-process ----
-## Aux. function plotting population pyramids 
-  ggpyramid <- function(df, fill = gender) {
-    brks_y <- seq(-4, 4, 1)
-    lmts_y = c(min(brks_y), max(brks_y))
-    lbls_y <- paste0(as.character(abs(brks_y)), "%")
-    ggplot() + 
-      geom_bar(data = subset(df, gender == "Women"),
-               aes(x = age,
-                   y = pop_per,
-                   fill = {{ fill }}), 
-               stat = "identity", 
-               width = 1) + 
-      geom_bar(data = subset(df, gender == "Men"),
-               aes(x = age,
-                   y = -pop_per,
-                   fill = {{ fill }}), 
-               stat = "identity",
-               width = 1) + 
-      geom_hline(yintercept = 0, colour = "grey10") +
-      annotate(geom = "text", y = 2,  x = 21, label = "Women", fontface = "bold") +
-      annotate(geom = "text", y = -2, x = 21, label = "Men", fontface = "bold") +
-      geom_segment(aes(x = 3.5, xend = 3.5, y = -4, yend = 4), linetype = "dashed") +
-      geom_segment(aes(x = 13, xend = 13, y = -4, yend = 4), linetype = "dashed") +
-      scale_y_continuous(name = NULL, breaks = brks_y, labels = lbls_y, limits = lmts_y) +
-      scale_x_discrete(name = "Age") +
-      coord_flip() 
-  }
+# Plot population pyramid ---- 
+  brks_y <- seq(-4, 4, 1)
+  lmts_y = c(min(brks_y), max(brks_y))
+  lbls_y <- paste0(as.character(abs(brks_y)), "%")
+  pop_DK %>% 
+    ggpyramid(pop = pop_per, fill = ancestry) +
+    scale_fill_manual(name = "Ancestry", values = c("#0072B2", "#F0E442", "#D55E00")) +
+    scale_y_continuous(name = NULL, breaks = brks_y, labels = lbls_y, limits = lmts_y) +
+    labs(title = "Population pyramith of Denmark",
+         caption = "Source: Statistics Denmark") + 
+    geom_segment(data = pop_DK, aes(x = 4, xend = 4, y = -4, yend = 4), linetype = "dashed") +
+    geom_segment(data = pop_DK, aes(x = 13.5, xend = 13.5, y = -4, yend = 4), linetype = "dashed") +
+    annotate(geom = "text", y = c(2 , 2),  x = 20.5, label = "Women", fontface = "bold", size = 3) +
+    annotate(geom = "text", y = c(-2,-2),  x = 20.5, label = "Men", fontface = "bold", size = 3) +
+    facet_grid( . ~ date) +
+    theme_plot()  
   
-## Define theme
-  theme_pyramid <- function() {
-    theme_bw() +
-    theme(axis.text = element_text(size = 7),
-          axis.title = element_text(size = 11, face = "bold"))
-  }
-  
-## Plot population pyramid ---- 
-# Baseline (2008Q1)
-  filter(pop_DK, date ==  first_of_quarter(as_date_yq(20081))) %>% 
-    ggpyramid(fill = ancestry) + 
-    scale_fill_manual(values = c("#0072B2", "#F0E442", "#D55E00")) + 
-    labs(title = "Population pyramid of Denmark",
-         subtitle = paste("Date", first_of_quarter(as_date_yq(20081)), sep = ": ")) +
-    theme_pyramid() -> p1
-  
-# Situation in 2020-Q3
-  filter(pop_DK, date ==  first_of_quarter(as_date_yq(20204))) %>% 
-    ggpyramid(fill = ancestry) + 
-    scale_fill_manual(values = c("#0072B2", "#F0E442", "#D55E00")) +
-    theme_pyramid() +
-    labs(title = "",
-         subtitle = paste("Date", first_of_quarter(as_date_yq(20204)), sep = ": ")) -> p2
- 
-  p1 + p2 + plot_layout(guides = "collect")  
-  ggsave("Results/pop_pyramid_2008_2020_migr.png", width = 25, height = 12, units = "cm")
-
-## Animated population pyramid from 2008-2020 ----
-## Not sure why I got an error if all the data are selected
-## and I've removed 2008
-  filter(pop_DK, date >= "2009-01-01") %>% 
-    ggpyramid(fill = ancestry) + 
-    scale_fill_manual(values = c("#0072B2", "#F0E442", "#D55E00")) +
-    transition_states(date, wrap = FALSE) +
-    labs(title = "Population pyramid of Denmark",
-         subtitle = "Date: {closest_state}") -> anim
-  
-  anim_save("Results/pop_pyramid_2008_2020_migr_anim.gif", anim)
-
+  ggsave("Results/pop_pyramid_2008_2020_migr.png", width = 15, height = 7, units = "cm")
