@@ -1,5 +1,5 @@
 
-## Aux. function plotting population pyramids 
+## Function plotting population pyramids 
 
 ggpyramid <- function(data = data,
                       age = age,
@@ -11,32 +11,26 @@ ggpyramid <- function(data = data,
                       annotate = FALSE, 
                       percent = TRUE) {
   if(percent){
-    data$pop <-  100 * {{ data$pop }} / sum( {{ data$pop }})
-    brks_y <- seq(-100, 100, 1)
-    lmts_y = c(min(brks_y), max(brks_y))
-    lbls_y <- paste0(as.character(abs(brks_y)), "%")
+    data$pop_pct <-  100 * {{ data$pop }} / sum( {{ data$pop }})
     p <- ggplot() + 
       geom_bar(data = subset( {{ data }}, {{ gender }} == women ),
                aes(x = {{ age }},
-                   y = pop,
+                   y = pop_pct,
                    fill = {{ fill }}), 
                stat = "identity", 
                width = 1) + 
       geom_bar(data = subset( {{ data }}, {{ gender }} == men ),
                aes(x = {{ age }},
-                   y = - pop,
+                   y = - pop_pct,
                    fill = {{ fill }}), 
                stat = "identity",
                width = 1) + 
       geom_hline(yintercept = 0, colour = "grey10") +
-      scale_y_continuous(name = NULL, breaks = brks_y, labels = lbls_y) +
       scale_x_discrete(name = "Age") +
       coord_flip() 
   }
   else {
     y_max <- ceiling(max(abs(data$pop/1000)))
-    brks_y <- seq(-200, 200, 50)
-    lbls_y <- paste0(as.character(abs(brks_y)), "k")
     p <- ggplot() + 
       geom_bar(data = subset( {{ data }}, {{ gender }} == women ),
                aes(x = {{ age }},
@@ -51,7 +45,6 @@ ggpyramid <- function(data = data,
                stat = "identity",
                width = 1) + 
       geom_hline(yintercept = 0, colour = "grey10") +
-      scale_y_continuous(name = NULL, breaks = brks_y, labels = lbls_y) +
       scale_x_discrete(name = "Age") +
       coord_flip() 
   }
@@ -59,13 +52,13 @@ ggpyramid <- function(data = data,
   if(percent & annotate) {
     p +
       annotate(geom = "text",
-               y = max(data$pop) / 2,
-               x = max(as.numeric(data$age)) - 1,
+               y = max(data$pop_pct) / 2,
+               x = max(as.numeric(data$age)),
                label = women,
                fontface = "bold") +
       annotate(geom = "text",
-               y = -max(data$pop)/ 2 ,
-               x = max(as.numeric(data$age)) - 1,
+               y = -max(data$pop_pct)/ 2 ,
+               x = max(as.numeric(data$age)),
                label = men,
                fontface = "bold") 
    } else{
@@ -73,12 +66,12 @@ ggpyramid <- function(data = data,
     p +
       annotate(geom = "text",
                y = max(data$pop) / 2000,
-               x = max(as.numeric(data$age)) - 1,
+               x = max(as.numeric(data$age)),
                label = women,
                fontface = "bold") +
       annotate(geom = "text",
                y = -max(data$pop) / 2000 ,
-               x = max(as.numeric(data$age)) - 1,
+               x = max(as.numeric(data$age)),
                label = men,
                fontface = "bold")
      } else{ 
