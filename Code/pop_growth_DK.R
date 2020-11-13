@@ -89,30 +89,36 @@
     # Add total population (pop_total) 
     summarise(pop_total = sum(pop)) %>%  
     ungroup() %>%  
-    # Standardize it to % change with 2008-Q1 as baseline
+    # Calculate difference and standardize pop_total to % change with 2008-Q1 as baseline
     group_by(ancestry) %>% 
     arrange(date, ancestry) %>% 
-    mutate(pop_change_2008 = (pop_total/first(pop_total) - 1) * 100) %>% 
+    mutate(pop_change_2008 = (pop_total/first(pop_total) - 1) * 100,
+           pop_diff_2008 = pop_total - first(pop_total)) %>% 
+    ungroup() %>% 
+    # Difference percentage over the total change
+    group_by(date) %>% 
+    mutate(pop_diff_2008_pct = 100 * pop_diff_2008 / sum(pop_diff_2008)) %>% 
     ungroup() -> pop_DK_quarter
 
 # Plots ---- 
   
   ggplot() +
-    geom_area(data = pop_DK_quarter, aes(x = date, y = pop_total/1000, fill = ancestry)) +
+    geom_area(data = pop_DK_quarter, aes(x = date, y = pop_diff_2008/1000, fill = ancestry)) +
     scale_fill_manual(name = "Ancestry", values = c("#0072B2", "#F0E442", "#D55E00")) +
-    labs(title = "Danish population (2008 - 2020)",
-         subtitle = "Total population",
-         y = "x1000") +
-    theme_bw() -> p1
+    labs(title = "Danish population growth (2008 - 2020)",
+         subtitle = "Population difference",
+         y = "x1000",
+         x = "") +
+    theme_plot() -> p1
   
   ggplot() +
-    geom_area(data = pop_DK_quarter, aes(x = date, y = pop_change_2008, fill = ancestry)) +
+    geom_area(data = pop_DK_quarter, aes(x = date, y = pop_diff_2008_pct, fill = ancestry)) +
     scale_fill_manual(name = "Ancestry", values = c("#0072B2", "#F0E442", "#D55E00")) +
-    labs(title = "",
-         subtitle = "Percentage of change",
+    labs(subtitle = "Percentage over the total change",
          caption = "Source: Statistics Denmark",
-         y = "%") +
-    theme_bw() -> p2
+         y = "%",
+         x = "") +
+    theme_plot() -> p2
   
   p1 + p2 + plot_layout(guides = "collect") 
   ggsave("Results/pop_growth_2008_2020.png", width = 25, height = 10, units = "cm")
