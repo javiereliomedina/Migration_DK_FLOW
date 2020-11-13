@@ -107,4 +107,4 @@
     facet_grid( . ~ date) +
     theme_plot()  
   
-  ggsave("Results/pop_pyramid_2008_2020_migr.png", width = 15, height = 7, units = "cm")
+  ggsave("Results/pop_pyramid_2008_2020_migr.png", width = 25, height = 10, units = "cm")
