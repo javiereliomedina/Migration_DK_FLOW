@@ -12,7 +12,12 @@
   library(furrr)
   library(forcats)
   
-  source("Code/ggpyramid.R")
+  # Install my own package for plotting population pyramids
+  if (!require("remotes")) install.packages("remotes")
+  if (!require("ggpyramid")) install.packages("ggpyramid")
+  remotes::install_github("javiereliomedina/ggpyramid")
+  library(ggpyramid)
+  
   source("Code/theme_plot.R")
 
 # Load data ----
