@@ -22,7 +22,7 @@ All the data I use here are public from the following data sources:
 
 # Codes
 
-Each R-script is independent, with enough information for downloading the required data and plotting the figures.  
+Each R-script is independent with enough information for downloading the required data and plotting the respective figures.  
 
   - *DK_adm_units*: get spatial data of Denmark at diverse administrative unit levels (i.e. country, regions, provinces, LAUs, and communes).
   - *pop_pyramid*: population pyramid of Denmark.
