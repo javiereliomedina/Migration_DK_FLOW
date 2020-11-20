@@ -155,7 +155,7 @@
                          midpoint = 0) +
     labs(title = "Danish population change by LAUs",
          subtitle = "Period: 2008 - 2020") +
-    theme_plot() -> p_total
+    theme_plot() 
 
   ggsave("Results/pop_growth_lau_spatial_total_2008_2020.png",
          width = 15,
