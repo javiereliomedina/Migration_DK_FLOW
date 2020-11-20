@@ -13,6 +13,11 @@
   library(forcats)
   library(sf)
   library(giscoR)
+
+  # install.packages("devtools")
+  # devtools::install_github("yutannihilation/ggsflabel")
+  library(ggsflabel)
+
   
   source("Code/theme_plot.R")
 
@@ -140,6 +145,10 @@
     st_as_sf() %>% 
     mutate(date = as.Date(date)) -> dk_lau_pop
   
+# Big cities/urban areas
+  big_cities <- c("København", "Aarhus", "Odense", "Aalborg")
+  big_cities <- dk_lau %>% filter(LAU_NAME %in% big_cities)
+  
 # Plot population change (2008 - 2020)
 
 ## Total population by LAUs
@@ -155,7 +164,15 @@
                          midpoint = 0) +
     labs(title = "Danish population change by LAUs",
          subtitle = "Period: 2008 - 2020") +
-    theme_plot() 
+    theme_plot() +
+    ylim(54.50, 58.0) +
+    geom_sf_label_repel(data = big_cities,
+                        aes(label = LAU_NAME),
+                        force = 10,
+                        nudge_y = 3,
+                        nudge_x = 0.5,
+                        seed = 10
+                        )
 
   ggsave("Results/pop_growth_lau_spatial_total_2008_2020.png",
          width = 15,
@@ -243,7 +260,14 @@
     labs(title = "Danish population by LAUs",
          subtitle = "{closest_state}") +
     transition_states(date, wrap = FALSE) +
-    theme_bw()
+    theme_bw() + 
+    ylim(54.50, 58.0) +
+    geom_sf_label_repel(data = big_cities,
+                        aes(label = LAU_NAME),
+                        force = 10,
+                        nudge_y = 3,
+                        nudge_x = 0.5,
+                        seed = 10)
   
   # export as .gif
   anim_save("Results/pop_lau_2008_2020_anim.gif", anim)
