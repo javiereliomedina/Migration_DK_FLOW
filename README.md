@@ -22,13 +22,13 @@ All the data I use here are public from the following data sources:
 
 # Codes
 
-Each R-script is independent, with enough information for downloading the required data and produces the plots.  
+Each R-script is independent, with enough information for downloading the required data and plotting the figures.  
 
-  - *DK_adm_units*: get *sf* files of Denmark at diverse administrative unit levels (i.e. country, regions, provinces, LAUs, and communes).
+  - *DK_adm_units*: get spatial data of Denmark at diverse administrative unit levels (i.e. country, regions, provinces, LAUs, and communes).
   - *pop_pyramid*: population pyramid of Denmark.
   - *pop_growth_DK*: population growth in Denmark.
   - *pop_growth_LAUs*: population changes by Local Administrative Units (LAUs).
-  - *migrants_LAUs*: immigrants and their descendants bu LAUs. 
+  - *migrants_LAUs*: immigrants and their descendants by LAUs. 
 
 # Notes
 
