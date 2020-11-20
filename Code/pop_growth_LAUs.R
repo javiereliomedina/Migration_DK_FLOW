@@ -163,7 +163,9 @@
                          high = "blue",
                          midpoint = 0) +
     labs(title = "Danish population change by LAUs",
-         subtitle = "Period: 2008 - 2020") +
+         subtitle = "Period: 2008 - 2020",
+         x = "", 
+         y = "") +
     theme_plot() +
     ylim(54.50, 58.0) +
     geom_sf_label_repel(data = big_cities,
@@ -172,7 +174,7 @@
                         nudge_y = 3,
                         nudge_x = 0.5,
                         seed = 10
-                        )
+                        ) 
 
   ggsave("Results/pop_growth_lau_spatial_total_2008_2020.png",
          width = 15,
@@ -258,7 +260,9 @@
                          high = "blue",
                          midpoint = 0) +
     labs(title = "Danish population by LAUs",
-         subtitle = "{closest_state}") +
+         subtitle = "{closest_state}",
+         x = "", 
+         y = "") +
     transition_states(date, wrap = FALSE) +
     theme_bw() + 
     ylim(54.50, 58.0) +
