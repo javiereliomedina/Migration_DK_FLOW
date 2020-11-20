@@ -24,7 +24,7 @@ All the data I use here are public from the following data sources:
 
 Each R-script is independent with enough information for downloading the required data and plotting the respective figures.  
 
-  - *DK_adm_units*: get spatial data of Denmark at diverse administrative unit levels (i.e. country, regions, provinces, LAUs, and communes).
+  - *DK_adm_units*: get spatial data of Denmark at diverse administrative unit level (i.e. country, regions, provinces, LAUs, and communes).
   - *pop_pyramid*: population pyramid of Denmark.
   - *pop_growth_DK*: population growth in Denmark.
   - *pop_growth_LAUs*: population changes by Local Administrative Units (LAUs).
