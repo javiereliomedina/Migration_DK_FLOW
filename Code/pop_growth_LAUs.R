@@ -4,6 +4,7 @@
 
   library(danstat) 
   library(tidyverse)
+  library(forcats)
   library(readr)
   library(dint)
   library(gganimate)
@@ -68,10 +69,17 @@
     mutate(date = gsub("Q", "", date),
            date = as_date_yq(as.integer(date)),
            date = first_of_quarter(date)) %>% 
-    mutate(LAU_NAME = gsub("Copenhagen", "København", LAU_NAME)) %>%  
-    # Format ancestry 
-    mutate(ancestry = ifelse(ancestry == "Persons of Danish origin", "Danish", ancestry),
-           ancestry = factor(ancestry), 
+    mutate(LAU_NAME = gsub("Copenhagen", "København", LAU_NAME),
+           ancestry = ifelse(ancestry == "Persons of Danish origin", "Danish", ancestry)) %>% 
+    # Short LAUs by Total population in 20208-Q1
+    pivot_wider(c(LAU_NAME, date), names_from = ancestry, values_from = pop) %>% 
+    mutate(LAU_NAME = factor(LAU_NAME), 
+           LAU_NAME = fct_reorder2(LAU_NAME, date, Total, .fun = first2)) %>% 
+    pivot_longer(cols = c(Total, Danish, Immigrants, Descendant),
+               names_to = "ancestry",
+               values_to = "pop") %>% 
+    # Shorst ancestry 
+    mutate(ancestry = factor(ancestry), 
            ancestry = fct_relevel(ancestry, "Immigrants", after = 1)) -> pop_LAU 
   
 # Standardize population growth to % change with 2008-Q1 as baseline
@@ -85,12 +93,13 @@
 
 # Total population growth 
   pop_LAU %>% 
-    filter(ancestry == "Total") %>% 
+    # filter(ancestry == "Total") %>% 
     ggplot(aes(x = date,
-               y = pop_pct_2008)) +
-    geom_line( colour = "#0072B2" ) +
+               y = pop/1000,
+               colour = ancestry)) +
+    geom_line( ) +
     geom_hline(yintercept = 0, linetype = "dashed", colour = "grey") + 
-    facet_wrap(~LAU_NAME, ncol = 8) +
+    facet_wrap(~LAU_NAME, ncol = 8, scale = "free") +
     theme_bw() +
     theme(legend.position = "bottom",
           axis.text = element_text(size = 10),
@@ -101,19 +110,19 @@
           title = element_text(size = 14))  +
     labs(title = "Population change by LAU (2008 - 2020)",
          caption = "Source: Statistics Denmark") +
-    scale_y_continuous(name = "[%]") +
-    scale_x_date(name = "", date_breaks = "3 year", date_labels = "%y") 
+    scale_y_continuous(name = "[x1000]") +
+    scale_x_date(name = "", date_breaks = "3 year", date_labels = "%y") +
+    scale_colour_manual(name = "Ancestry",
+                        values = c("#0072B2", "#009E73", "#D55E00", "#000000"))
   
-  ggsave("Results/pop_growth_lau_tot_2008_2020.png", width = 40, height = 60, units = "cm")
+  ggsave("Results/pop_growth_lau_2008_2020_tot.png", width = 40, height = 60, units = "cm")
   
 # Population change by LAU and ancestry (Danish origin, Immigrants, Descendant) 
   pop_LAU %>% 
-    filter(ancestry != "Total") %>% 
     ggplot(aes(x = date,
                y = pop_pct_2008,
                colour = ancestry)) +
     geom_line( ) +
-    geom_hline(yintercept = 0, linetype = "dashed", colour = "grey") + 
     facet_wrap(~LAU_NAME, ncol = 8) +
     theme_bw() +
     theme(legend.position = "bottom",
@@ -125,11 +134,12 @@
           title = element_text(size = 14)) +
     labs(title = "Population change by LAU and ancestry (2008 - 2020)",
          caption = "Source: Statistics Denmark") +
-    scale_y_continuous(name = "[%]", limits = c(-25, 150)) +
+    scale_y_continuous(name = "[%]", limits = c(-25, 120)) +
     scale_x_date(name = "", date_breaks = "3 year", date_labels = "%y") +
-    scale_colour_manual(name = "Ancestry", values = c("#0072B2", "#009E73", "#D55E00"))
+    scale_colour_manual(name = "Ancestry",
+                        values = c("#0072B2", "#009E73", "#D55E00", "#000000"))
 
-  ggsave("Results/pop_growth_lau_2008_2020.png", width = 40, height = 60, units = "cm")
+  ggsave("Results/pop_growth_lau_2008_2020_pct.png", width = 40, height = 60, units = "cm")
   
 # Spatial analysis  ----
 
