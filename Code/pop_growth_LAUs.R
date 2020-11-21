@@ -196,15 +196,13 @@
   # Define theme for ggplot2
   theme_maps <- function() {
     theme_bw() +
-      theme(legend.position = "bottom",
-            axis.title = element_blank(),
+      theme(axis.title = element_blank(),
             axis.text  = element_blank(),
             axis.ticks = element_blank(),
             legend.title = element_text(size = 18),
             legend.text = element_text(size = 12),
             plot.title = element_text(size = 18),
-            title = element_text(size = 18),
-            legend.key.width = unit(3, "cm"))
+            title = element_text(size = 18))
   }
   
   # Persons of Danish origin
