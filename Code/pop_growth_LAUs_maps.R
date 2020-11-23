@@ -122,7 +122,7 @@
   
   # Transform Percentage of change to factor 
   pct_breaks <- c(floor(min(dk_lau_pop$pop_pct_2008)), -10, -5, 
-                  0, 5, 10, 20, 30, 50, 100, max(dk_lau_pop$pop_pct_2008))
+                  0, 5, 10, 20, 30, 50, 100, 200, max(dk_lau_pop$pop_pct_2008))
   
   dk_lau_pop %>% 
     mutate(pop_pct_2008_brk = cut(dk_lau_pop$pop_pct_2008,
@@ -131,7 +131,7 @@
            ancestry = fct_relevel(ancestry, "Total", after = 0))-> dk_lau_pop
   
   # Plot
-  myPallette <- c(rev(brewer.pal(3, "YlOrRd")), brewer.pal(8, "Blues"))
+  myPallette <- c(rev(brewer.pal(3, "YlOrRd")), brewer.pal(9, "Blues"))
   ggplot() +
     geom_sf(data = filter(dk_lau_pop,
                           date == as.Date("2020-07-01")),
@@ -161,35 +161,3 @@
          width = 30,
          height = 30,
          units = "cm")
-
-## Only the Total population change by LAUs ----
-  ggplot() +
-    geom_sf(data = filter(dk_lau_pop,
-                          date == as.Date("2020-07-01"),
-                          ancestry == "Total"),
-            aes(fill = pop_pct_2008),
-            color = "grey",
-            size = 0.05) +
-    scale_fill_gradient2(name = "Change [%]",
-                         low = "red",
-                         mid = "white",
-                         high = "blue",
-                         midpoint = 0) +
-    labs(title = "Danish population change by LAUs",
-         subtitle = "Period: 2008 - 2020",
-         x = "", 
-         y = "") +
-    theme_plot() +
-    ylim(54.50, 58.0) +
-    geom_sf_label_repel(data = big_cities,
-                        aes(label = LAU_NAME),
-                        force = 10,
-                        nudge_y = 3,
-                        nudge_x = 0.5,
-                        seed = 10) 
-  
-  ggsave("Results/pop_growth_lau_spatial_total_2008_2020.png",
-         width = 15,
-         height = 15,
-         units = "cm")
-  
