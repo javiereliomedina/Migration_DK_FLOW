@@ -27,7 +27,9 @@ Each R-script is independent with enough information for downloading the require
   - *DK_adm_units*: get spatial data of Denmark at diverse administrative unit levels (i.e. country, regions, provinces, LAUs, and communes).
   - *pop_pyramid*: population pyramid of Denmark.
   - *pop_growth_DK*: population growth in Denmark.
-  - *pop_growth_LAUs*: population changes by Local Administrative Units (LAUs).
+  - *pop_growth_LAUs*: Chards showing the population change by Local Administrative Units (LAUs) from 2008 to 2020. 
+  - *pop_growth_LAUs_maps*: Maps showing the population change by Local Administrative Units (LAUs) from 2008 to 2020.
+  - *pop_growth_LAUs_animation*: animation (.gif) showing the population change by Local Administrative Units (LAUs) from 2008 to 2020.
   - *migrants_LAUs*: immigrants and their descendants by LAUs. 
 
 # Notes

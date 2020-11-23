@@ -14,13 +14,19 @@
   library(forcats)
   library(sf)
   library(giscoR)
-
   # install.packages("devtools")
   # devtools::install_github("yutannihilation/ggsflabel")
   library(ggsflabel)
 
-  
-  source("Code/theme_plot.R")
+# Define theme for ggplot2
+    theme_plot <- function() {
+      theme_bw() +
+        theme(axis.text = element_text(size = 7),
+              axis.title = element_text(size = 9),
+              legend.title = element_text(size = 9, face = "bold"),
+              plot.title = element_text(size = 11, face = "bold"),
+              title = element_text(size = 9))
+    }
 
 # Load data ----
 #' Data from Statistic Denmark: https://www.statbank.dk/10021 
@@ -80,10 +86,8 @@
                values_to = "pop") %>% 
     # Shorst ancestry 
     mutate(ancestry = factor(ancestry), 
-           ancestry = fct_relevel(ancestry, "Immigrants", after = 1)) -> pop_LAU 
-  
-# Standardize population growth to % change with 2008-Q1 as baseline
-  pop_LAU %>% 
+           ancestry = fct_relevel(ancestry, "Immigrants", after = 1)) %>% 
+    # Standardize population growth to % change with 2008-Q1 as baseline
     group_by(LAU_NAME, ancestry) %>% 
     arrange(LAU_NAME, date) %>% 
     mutate(pop_pct_2008 = (pop/first(pop) - 1) * 100) %>% 
@@ -140,147 +144,4 @@
                         values = c("#0072B2", "#009E73", "#D55E00", "#000000"))
 
   ggsave("Results/pop_growth_lau_2008_2020_pct.png", width = 40, height = 60, units = "cm")
-  
-# Spatial analysis  ----
-
-# Local Administrative Units (LAU)
-  options(gisco_cache_dir = "C:/Users/FU53VP/OneDrive - Aalborg Universitet/Dokumenter/GISCO_spatial_data")
-  dk_lau <- gisco_get_lau(year = "2019", country = "DNK") %>%
-    mutate(LAU_NAME = str_conv(LAU_NAME, "UTF-8")) %>% 
-    arrange(LAU_NAME)
-
-# Link population with LAUs
-  dk_lau %>% 
-    left_join(pop_LAU, by = "LAU_NAME") %>% 
-    st_as_sf() %>% 
-    mutate(date = as.Date(date)) -> dk_lau_pop
-  
-# Big cities/urban areas
-  big_cities <- c("København", "Aarhus", "Odense", "Aalborg")
-  big_cities <- dk_lau %>% filter(LAU_NAME %in% big_cities)
-  
-# Plot population change (2008 - 2020)
-
-## Total population by LAUs
-  ggplot() +
-    geom_sf(data = filter(dk_lau_pop, date == as.Date("2020-07-01"), ancestry == "Total"),
-            aes(fill = pop_pct_2008),
-            color = "grey",
-            size = 0.05) +
-    scale_fill_gradient2(name = "Change [%]",
-                         low = "red",
-                         mid = "white",
-                         high = "blue",
-                         midpoint = 0) +
-    labs(title = "Danish population change by LAUs",
-         subtitle = "Period: 2008 - 2020",
-         x = "", 
-         y = "") +
-    theme_plot() +
-    ylim(54.50, 58.0) +
-    geom_sf_label_repel(data = big_cities,
-                        aes(label = LAU_NAME),
-                        force = 10,
-                        nudge_y = 3,
-                        nudge_x = 0.5,
-                        seed = 10
-                        ) 
-
-  ggsave("Results/pop_growth_lau_spatial_total_2008_2020.png",
-         width = 15,
-         height = 15,
-         units = "cm")
-
-## Differentiate ancestry
-  
-  # Define theme for ggplot2
-  theme_maps <- function() {
-    theme_bw() +
-      theme(axis.title = element_blank(),
-            axis.text  = element_blank(),
-            axis.ticks = element_blank(),
-            legend.title = element_text(size = 18),
-            legend.text = element_text(size = 12),
-            plot.title = element_text(size = 18),
-            title = element_text(size = 18))
-  }
-  
-  # Persons of Danish origin
-  ggplot() +
-    geom_sf(data = filter(dk_lau_pop, date == as.Date("2020-07-01"), ancestry == "Danish"),
-            aes(fill = pop_pct_2008),
-            color = "grey",
-            size = 0.05) +
-    scale_fill_gradient2(name = "[%]",
-                         low = "red",
-                         mid = "white",
-                         high = "blue",
-                         midpoint = 0) +
-    labs(title = "Persons of Danish origin") +
-    theme_maps() -> p_danish
-  
-  # Immigrants 
-  ggplot() +
-    geom_sf(data = filter(dk_lau_pop, date == as.Date("2020-07-01"), ancestry == "Immigrants"),
-            aes(fill = pop_pct_2008),
-            color = "grey",
-            size = 0.05) +
-    scale_fill_gradient2(name = "[%]",
-                         low = "red",
-                         mid = "white",
-                         high = "blue",
-                         midpoint = 0) +
-    labs(title = "Immigrants") +
-    theme_maps() -> p_migr
-  
-  # Descendant
-  ggplot() +
-    geom_sf(data = filter(dk_lau_pop, date == as.Date("2020-07-01"), ancestry == "Descendant"),
-            aes(fill = pop_pct_2008),
-            color = "grey",
-            size = 0.05) +
-    scale_fill_gradient2(name = "[%]",
-                         low = "red",
-                         mid = "white",
-                         high = "blue",
-                         midpoint = 0) +
-    labs(title = "Descendants") +
-    theme_maps() -> p_desc
-
-# Export plots
-  (p_danish + p_migr + p_desc)
-  ggsave("Results/pop_growth_lau_spatial_ancestry_2008_2020.png",
-         width = 60,
-         height = 20,
-         units = "cm")
-  
-## Animation ----
-  anim <- ggplot() +
-    # Not sure why I got an error if all the data are selected
-    # and I've removed the first date (baseline: 2009-Q1)
-    geom_sf(data = filter(dk_lau_pop, date >= "2009-01-01", ancestry == "Total"),
-            aes(fill = pop_pct_2008),
-            color = "grey",
-            size = 0.05) +
-    scale_fill_gradient2(name = "Change [%]",
-                         low = "red",
-                         mid = "white",
-                         high = "blue",
-                         midpoint = 0) +
-    labs(title = "Danish population by LAUs",
-         subtitle = "{closest_state}",
-         x = "", 
-         y = "") +
-    transition_states(date, wrap = FALSE) +
-    theme_bw() + 
-    ylim(54.50, 58.0) +
-    geom_sf_label_repel(data = big_cities,
-                        aes(label = LAU_NAME),
-                        force = 10,
-                        nudge_y = 3,
-                        nudge_x = 0.5,
-                        seed = 10)
-  
-  # export as .gif
-  anim_save("Results/pop_lau_2008_2020_anim.gif", anim)
   

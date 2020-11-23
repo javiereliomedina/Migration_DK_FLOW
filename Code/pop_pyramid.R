@@ -14,11 +14,18 @@
   
   # Install my own package for plotting population pyramids
   if (!require("remotes")) install.packages("remotes")
-  if (!require("ggpyramid")) install.packages("ggpyramid")
-  remotes::install_github("javiereliomedina/ggpyramid")
+  if (!require("ggpyramid")) remotes::install_github("javiereliomedina/ggpyramid")
   library(ggpyramid)
   
-  source("Code/theme_plot.R")
+  # Define theme for ggplot2
+  theme_plot <- function() {
+    theme_bw() +
+      theme(axis.text = element_text(size = 7),
+            axis.title = element_text(size = 9),
+            legend.title = element_text(size = 9, face = "bold"),
+            plot.title = element_text(size = 11, face = "bold"),
+            title = element_text(size = 9))
+  }
 
 # Load data ----
 #' Data from Statistic Denmark: https://www.statbank.dk/10021 
