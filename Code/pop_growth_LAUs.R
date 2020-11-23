@@ -77,10 +77,10 @@
            date = first_of_quarter(date)) %>% 
     mutate(LAU_NAME = gsub("Copenhagen", "København", LAU_NAME),
            ancestry = ifelse(ancestry == "Persons of Danish origin", "Danish", ancestry)) %>% 
-    # Short LAUs by Total population in 20208-Q1
+    # Short LAUs by Total population in 2020-Q4
     pivot_wider(c(LAU_NAME, date), names_from = ancestry, values_from = pop) %>% 
     mutate(LAU_NAME = factor(LAU_NAME), 
-           LAU_NAME = fct_reorder2(LAU_NAME, date, Total, .fun = first2)) %>% 
+           LAU_NAME = fct_reorder2(LAU_NAME, date, Total, .fun = last2)) %>% 
     pivot_longer(cols = c(Total, Danish, Immigrants, Descendant),
                names_to = "ancestry",
                values_to = "pop") %>% 
@@ -113,7 +113,7 @@
           plot.title = element_text(size = 14, face = "bold"),
           title = element_text(size = 14))  +
     labs(title = "Population change by LAU (2008 - 2020)",
-         caption = "Source: Statistics Denmark") +
+         caption = "Data source: Statistics Denmark\nAuthor: J. Elio (@Elio_Javi), C. Keßler, H.S. Hansen. Aalborg University, Department of Planning") +
     scale_y_continuous(name = "[x1000]") +
     scale_x_date(name = "", date_breaks = "3 year", date_labels = "%y") +
     scale_colour_manual(name = "Ancestry",
@@ -137,7 +137,7 @@
           plot.title = element_text(size = 14, face = "bold"),
           title = element_text(size = 14)) +
     labs(title = "Population change by LAU and ancestry (2008 - 2020)",
-         caption = "Source: Statistics Denmark") +
+         caption = "Data source: Statistics Denmark\nAuthor: J. Elio (@Elio_Javi), C. Keßler, H.S. Hansen. Aalborg University, Department of Planning") +
     scale_y_continuous(name = "[%]", limits = c(-25, 120)) +
     scale_x_date(name = "", date_breaks = "3 year", date_labels = "%y") +
     scale_colour_manual(name = "Ancestry",
