@@ -106,25 +106,36 @@
     st_as_sf() -> pop_migr_lau_2020Q4
   
   # Big cities/urban areas
-  big_cities <- c("København", "Aarhus", "Odense", "Aalborg")
+  big_cities <- c("København", "Aarhus", "Odense", "Aalborg", "Frederiksberg", "Vejle")
   big_cities <- dk_lau %>% filter(LAU_NAME %in% big_cities)
 
 # Plot total foreign citizens by LAU ----
 
 ## Total foreign population by LAU (and percentage over the total migrants)
+## Binds represent the same percentage of population (~20%)
+
+  cumsum__breaks <- c(0, 21, 40.0, 60.0, 80.0, 100)
+  
   pop_migr_lau_2020Q4 %>% 
     filter(ancestry == "Total") %>% 
     group_by(LAU_NAME) %>% 
     summarise(pop = sum(pop, na.rm = TRUE)) %>% 
     arrange(-pop) %>% 
     ungroup() %>% 
-    mutate(pop_pct = 100 * pop/sum(pop)) %>% 
-    select(LAU_NAME, pop, pop_pct) -> pop_migr_lau_2020Q4_total
+    # LAU groups with the same percentage of migrants (~ 20%)
+    mutate(pop_pct = 100 * pop/sum(pop),
+           pop_pct_cum = cumsum(pop_pct),
+           pop_pct_cum_brk = cut(pop_pct_cum, breaks = cumsum__breaks)) %>% 
+    select(LAU_NAME, pop, pop_pct, pop_pct_cum, pop_pct_cum_brk) -> pop_migr_lau_2020Q4_total
   
   pop_migr_lau_2020Q4_total %>% 
     ggplot() +
-    geom_sf(aes(fill = pop_pct), color = "grey", size = 0.05) + 
-    scale_fill_viridis(name = "Perc [%]", option = "magma", direction = -1) +
+    geom_sf(aes(fill = pop_pct_cum_brk),
+            color = "grey",
+            size = 0.05) + 
+    scale_fill_brewer(name = "Cumulative [%]",
+                      palette = "YlGnBu",
+                      direction = -1) +
     labs(title = "Where do immigrans and their descendants live in Denmark?",
          subtitle = "Denmark's municipalities (Date: 2020-Q4)",
          caption = "Data source: Statistics Denmark\nAuthors: J. Elio (@Elio_Javi), C. Keßler, H.S. Hansen. Aalborg University, Department of Planning",
@@ -135,20 +146,24 @@
     geom_sf_label_repel(data = big_cities,
                         aes(label = LAU_NAME),
                         force = 10,
-                        nudge_y = 3,
-                        nudge_x = 0.5,
+                        nudge_y = c( 1.5,  2,  1, -1, -1, -1.5),
+                        nudge_x = c(  -1,  1,  1,  1,  0, -1.5),
                         seed = 10)
-
+  
   ggsave("Results/pop_migrs_lau_2020.png", width = 15, height = 15, units = "cm")
 
 ## Top 6 citizen groups (and percentage over the same country of origin)
+  cumsum__breaks <- c(0, 20, 40.0, 60.0, 80.0, 100)
   top_migr_groups <- c("Turkey", "Poland", "Syria", "Germany", "Romania", "Iraq")
   pop_migr_lau_2020Q4 %>% 
     filter(ancestry == "Total",
            origin %in% top_migr_groups) %>% 
     group_by(origin) %>% 
-    mutate(pop_pct = 100 * pop / sum(pop, na.rm = TRUE)) %>% 
-    select(LAU_NAME, origin, pop, pop_pct) -> pop_migr_lau_2020Q4_top_groups
+    arrange(-pop) %>% 
+    mutate(pop_pct = 100 * pop / sum(pop, na.rm = TRUE),
+           pop_pct_cum = cumsum(pop_pct),
+           pop_pct_cum_brk = cut(pop_pct_cum, breaks = cumsum__breaks)) %>% 
+    select(LAU_NAME, origin, pop, pop_pct, pop_pct_cum, pop_pct_cum_brk) -> pop_migr_lau_2020Q4_top_groups
   
   # facet by top countries, adding the total number of immigrants/descendants
   sum_pop <- function(country) {
@@ -166,9 +181,11 @@
   pop_migr_lau_2020Q4_top_groups %>% 
     mutate(origin = factor(origin, levels = levels, labels = labels)) %>% 
     ggplot() +
-    geom_sf(aes(fill = pop_pct), color = "grey", size = 0.05) +
-    scale_fill_viridis(name = "Perc [%]", option = "magma", direction = -1) +
-    labs(title = "Top countries of origin for immigrants and their descendants",
+    geom_sf(aes(fill = pop_pct_cum_brk), color = "grey", size = 0.05) +
+    scale_fill_brewer(name = "Cumulative [%]",
+                      palette = "YlGnBu",
+                      direction = -1) +
+   labs(title = "Top countries of origin for immigrants and their descendants",
          subtitle = "Denmark's municipalities (Date: 2020-Q4)",
          caption = "Data source: Statistics Denmark\nAuthors: J. Elio (@Elio_Javi), C. Keßler, H.S. Hansen. Aalborg University, Department of Planning") +
     facet_wrap(~ origin, ncol = 2) +
