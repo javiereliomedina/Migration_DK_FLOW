@@ -120,9 +120,11 @@
     facet_grid(~ancestry) +
     theme_plot() +
     labs(subtitle = "Divided by ancestry", 
+         caption = "Data source: Statistics Denmark\nAuthor: J. Elio (@Elio_Javi), C. Keßler, H.S. Hansen. Aalborg University, Department of Planning",
          y = "Pop [x1000]",
          x = "") +
     scale_color_brewer(name = "Country of\norigin", palette = "Paired") -> p2
   
-  p1 / p2 + plot_layout(guides = "collect") 
+  p1 / p2 + plot_layout(guides = "collect")
+    
   ggsave("Results/pop_migr_countries_2008_2020.png", width = 20, height = 20, units = "cm")
