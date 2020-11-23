@@ -127,7 +127,9 @@
     scale_fill_viridis(name = "Perc [%]", option = "magma", direction = -1) +
     labs(title = "Where do immigrans and their descendants live in Denmark?",
          subtitle = "Denmark's municipalities (Date: 2020-Q4)",
-         caption = "Data source: Statistics Denmark\nAuthors: J. Elio (@Elio_Javi), C. Keßler, H.S. Hansen. Aalborg University, Department of Planning") +
+         caption = "Data source: Statistics Denmark\nAuthors: J. Elio (@Elio_Javi), C. Keßler, H.S. Hansen. Aalborg University, Department of Planning",
+         x = "",
+         y = "") +
     theme_plot() +
     ylim(54.50, 58.0) +
     geom_sf_label_repel(data = big_cities,
