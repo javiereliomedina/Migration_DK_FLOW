@@ -14,6 +14,7 @@
   library(forcats)
   library(sf)
   library(giscoR)
+  library(RColorBrewer)
   # install.packages("devtools")
   # devtools::install_github("yutannihilation/ggsflabel")
   library(ggsflabel)
@@ -109,9 +110,59 @@
   big_cities <- c("København", "Aarhus", "Odense", "Aalborg")
   big_cities <- dk_lau %>% filter(LAU_NAME %in% big_cities)
 
-# Maps ----
+# Map ----
   
-## Total population by LAUs ----
+## Differentiate by ancestry
+## Ancestry: Total population, Persons of Danish origin, Immigrants, and Descendants
+  
+  # Annotate cities only in the "Total" facet
+  big_cities <- big_cities %>%  
+    mutate(ancestry = "Total", 
+           ancestry = factor(ancestry, levels = levels(dk_lau_pop$ancestry)))
+  
+  # Transform Percentage of change to factor 
+  pct_breaks <- c(floor(min(dk_lau_pop$pop_pct_2008)), -10, -5, 
+                  0, 5, 10, 20, 30, 50, 100, max(dk_lau_pop$pop_pct_2008))
+  
+  dk_lau_pop %>% 
+    mutate(pop_pct_2008_brk = cut(dk_lau_pop$pop_pct_2008,
+                                  breaks = pct_breaks)) %>% 
+    mutate(ancestry = factor(ancestry),
+           ancestry = fct_relevel(ancestry, "Total", after = 0))-> dk_lau_pop
+  
+  # Plot
+  myPallette <- c(rev(brewer.pal(3, "YlOrRd")), brewer.pal(8, "Blues"))
+  ggplot() +
+    geom_sf(data = filter(dk_lau_pop,
+                          date == as.Date("2020-07-01")),
+    aes(fill = pop_pct_2008_brk),
+    color = "grey50",
+    size = 0.05) +
+    scale_fill_manual(name = "Percentage", 
+                      values = myPallette,
+                      drop = FALSE) +
+    labs(title = "Danish population change by LAUs",
+         subtitle = "Period: 2008 - 2020",
+         caption = "Data source: Statistics Denmark\nAuthor: J. Elio (@Elio_Javi), C. Keßler, H.S. Hansen. Aalborg University, Department of Planning",
+         x = "", 
+         y = "") +
+    theme_plot() +
+    ylim(54.50, 58.0) +
+    geom_sf_label_repel(data = big_cities,
+                        aes(label = LAU_NAME),
+                        force = 10,
+                        nudge_y = 3,
+                        nudge_x = 0.5,
+                        seed = 10) +
+    facet_wrap( ~ancestry, ncol = 2)
+  
+  # Export plots
+  ggsave("Results/pop_growth_lau_spatial_ancestry_2008_2020.png",
+         width = 30,
+         height = 30,
+         units = "cm")
+
+## Only the Total population change by LAUs ----
   ggplot() +
     geom_sf(data = filter(dk_lau_pop,
                           date == as.Date("2020-07-01"),
@@ -135,75 +186,10 @@
                         force = 10,
                         nudge_y = 3,
                         nudge_x = 0.5,
-                        seed = 10
-    ) 
+                        seed = 10) 
   
   ggsave("Results/pop_growth_lau_spatial_total_2008_2020.png",
          width = 15,
          height = 15,
-         units = "cm")
-  
-## Differentiate ancestry
-## Plot the three maps together (Danish, Immigrants, Descendants)
-  
-  # Define theme for ggplot2
-  theme_maps <- function() {
-    theme_bw() +
-      theme(axis.title = element_blank(),
-            axis.text  = element_blank(),
-            axis.ticks = element_blank(),
-            legend.title = element_text(size = 18),
-            legend.text = element_text(size = 12),
-            plot.title = element_text(size = 18),
-            title = element_text(size = 18))
-  }
-  
-  # Persons of Danish origin
-  ggplot() +
-    geom_sf(data = filter(dk_lau_pop, date == as.Date("2020-07-01"), ancestry == "Danish"),
-            aes(fill = pop_pct_2008),
-            color = "grey",
-            size = 0.05) +
-    scale_fill_gradient2(name = "[%]",
-                         low = "red",
-                         mid = "white",
-                         high = "blue",
-                         midpoint = 0) +
-    labs(title = "Persons of Danish origin") +
-    theme_maps() -> p_danish
-  
-  # Immigrants 
-  ggplot() +
-    geom_sf(data = filter(dk_lau_pop, date == as.Date("2020-07-01"), ancestry == "Immigrants"),
-            aes(fill = pop_pct_2008),
-            color = "grey",
-            size = 0.05) +
-    scale_fill_gradient2(name = "[%]",
-                         low = "red",
-                         mid = "white",
-                         high = "blue",
-                         midpoint = 0) +
-    labs(title = "Immigrants") +
-    theme_maps() -> p_migr
-  
-  # Descendant
-  ggplot() +
-    geom_sf(data = filter(dk_lau_pop, date == as.Date("2020-07-01"), ancestry == "Descendant"),
-            aes(fill = pop_pct_2008),
-            color = "grey",
-            size = 0.05) +
-    scale_fill_gradient2(name = "[%]",
-                         low = "red",
-                         mid = "white",
-                         high = "blue",
-                         midpoint = 0) +
-    labs(title = "Descendants") +
-    theme_maps() -> p_desc
-  
-  # Export plots
-  (p_danish + p_migr + p_desc)
-  ggsave("Results/pop_growth_lau_spatial_ancestry_2008_2020.png",
-         width = 60,
-         height = 20,
          units = "cm")
   
