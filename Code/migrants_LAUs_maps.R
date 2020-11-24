@@ -16,7 +16,7 @@
   library(viridis)
   
   if(!require("devtools"))  install.packages("devtools")
-  if(!require("ggpyramid")) devtools::install_github("yutannihilation/ggsflabel")
+  if(!require("ggsflabel")) devtools::install_github("yutannihilation/ggsflabel")
   library(ggsflabel)
   
   # Define theme for ggplot2
