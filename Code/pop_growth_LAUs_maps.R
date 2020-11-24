@@ -15,8 +15,9 @@
   library(sf)
   library(giscoR)
   library(RColorBrewer)
-  # install.packages("devtools")
-  # devtools::install_github("yutannihilation/ggsflabel")
+  
+  if(!require("devtools"))  install.packages("devtools")
+  if(!require("ggsflabel")) devtools::install_github("yutannihilation/ggsflabel")
   library(ggsflabel)
   
 # Define theme for ggplot2
