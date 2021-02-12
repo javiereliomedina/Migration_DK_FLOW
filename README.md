@@ -32,6 +32,7 @@ Each R-script is independent with enough information for downloading the require
   - *pop_growth_LAUs_animation*: animation (.gif) showing the population change by Local Administrative Units (LAUs) from 2008 to 2020.
   - *migrants_DK*: immigrants and their descendants in Denmark, evolution of the top 10 countries of origin.  
   - *migrants_LAUs_maps*: maps showing where immigrants and their descendants live. 
+  - *OMS_data_CPH*: get data from Open Street Map.
 
 # Notes
 
