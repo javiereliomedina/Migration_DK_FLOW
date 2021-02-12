@@ -11,7 +11,7 @@
   library(sf)
   library(giscoR)
 
-  options(gisco_cache_dir = "C:/Users/FU53VP/OneDrive - Aalborg Universitet/Dokumenter/GISCO_spatial_data")
+  options(gisco_cache_dir = "C:/GISCO_spatial_data")
 
 
 # Nomenclature of Territorial Units for Statistics (NUTS) ----

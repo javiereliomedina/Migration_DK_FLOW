@@ -96,7 +96,7 @@
     ungroup() -> pop_LAU
 
 ## Local Administrative Units (LAU) ----
-  options(gisco_cache_dir = "C:/Users/FU53VP/OneDrive - Aalborg Universitet/Dokumenter/GISCO_spatial_data")
+  options(gisco_cache_dir = "C:/GISCO_spatial_data")
   dk_lau <- gisco_get_lau(year = "2019", country = "DNK") %>%
     mutate(LAU_NAME = str_conv(LAU_NAME, "UTF-8")) %>% 
     arrange(LAU_NAME)
