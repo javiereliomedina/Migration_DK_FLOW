@@ -63,10 +63,13 @@ library(ggpyramid)
            age = factor(age, levels = subset(dat_meta$values[[3]], id != "14TOT")$id)) 
   
 # Plots ----
-
-## Wages in 2019
-  brks_y <- seq(-625, 625, 250)
+  
+  brks_y <- c(-630, -420, -210, 0, 210, 420, 630) 
   lmts_y = c(min(brks_y), max(brks_y))
+  lbls_y <- as.character(abs(brks_y))
+  
+## Wages in 2019
+  
   dat_clean %>% 
     filter(date == 2019,
            unit != "People (Number)") %>% 
@@ -78,10 +81,9 @@ library(ggpyramid)
               women = "Women",
               fill = gender) +
     scale_fill_manual(name = "Gender", values = c("#E69F00", "#009E73")) +
-    scale_y_continuous(name = NULL, breaks = brks_y, limits = lmts_y) +
+    scale_y_continuous(name = "", breaks = brks_y, labels = lbls_y, limits = lmts_y) +
     labs(title = "Wages and salaries in Denmark (2019) ",
          subtitle = "Only people with the type of income",
-         y = "",
          caption = "Data source: Statistics Denmark \nAuthor: J. Elio (@Elio_Javi)\nAalborg University, Department of Planning") +
     theme_bw() +
     facet_wrap( ~ unit)
@@ -89,8 +91,6 @@ library(ggpyramid)
   ggsave("Results/wages_salaries_2019.png")
   
 ## Animation
-  brks_y <- seq(-625, 625, 250)
-  lmts_y = c(min(brks_y), max(brks_y))
   anim <- dat_clean %>% 
     filter(unit != "People (Number)") %>%
     mutate(unit = gsub("DKK", "kDKK", unit)) %>% 
@@ -101,7 +101,7 @@ library(ggpyramid)
               women = "Women",
               fill = gender) +
     scale_fill_manual(name = "Gender", values = c("#E69F00", "#009E73")) + 
-    scale_y_continuous(name = NULL, breaks = brks_y, limits = lmts_y) +
+    scale_y_continuous(name = "", breaks = brks_y, labels = lbls_y, limits = lmts_y) +
     labs(title = "Wages and salaries in Denmark (Constant prices) ",
          subtitle = "Date: {closest_state}",
          caption = "Data: Only people with the type of income\nSource: Statistics Denmark \nAuthor: J. Elio (@Elio_Javi)\nAalborg University, Department of Planning") +
