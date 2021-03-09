@@ -33,6 +33,7 @@ Each R-script is independent with enough information for downloading the require
   - *migrants_DK*: immigrants and their descendants in Denmark, evolution of the top 10 countries of origin.  
   - *migrants_LAUs_maps*: maps showing where immigrants and their descendants live. 
   - *OMS_data_CPH*: get data from Open Street Map.
+  - *Wages_salaries*: Wages and salaries Denmark.
 
 # Notes
 
