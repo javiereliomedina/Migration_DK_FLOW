@@ -65,7 +65,7 @@ library(ggpyramid)
 # Plots ----
 
 ## Wages in 2019
-  brks_y <- seq(-610, 610, 244)
+  brks_y <- seq(-625, 625, 250)
   lmts_y = c(min(brks_y), max(brks_y))
   dat_clean %>% 
     filter(date == 2019,
@@ -86,10 +86,12 @@ library(ggpyramid)
     theme_bw() +
     facet_wrap( ~ unit)
   
+  ggsave("Results/wages_salaries_2019.png")
+  
 ## Animation
-  brks_y <- seq(-610, 610, 244)
+  brks_y <- seq(-625, 625, 250)
   lmts_y = c(min(brks_y), max(brks_y))
-  dat_clean %>% 
+  anim <- dat_clean %>% 
     filter(unit != "People (Number)") %>%
     mutate(unit = gsub("DKK", "kDKK", unit)) %>% 
     ggpyramid(age = age,
@@ -106,5 +108,7 @@ library(ggpyramid)
     theme_bw() +
     facet_wrap( ~ unit) +
     transition_states(date)
+  
+  anim_save("Results/wages_salaries.gif", anim)
   
            
