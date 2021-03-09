@@ -77,12 +77,12 @@ library(ggpyramid)
               men = "Men",
               women = "Women",
               fill = gender) +
-    scale_fill_manual(values = c("#E69F00", "#009E73")) +
+    scale_fill_manual(name = "Gender", values = c("#E69F00", "#009E73")) +
     scale_y_continuous(name = NULL, breaks = brks_y, limits = lmts_y) +
     labs(title = "Wages and salaries in Denmark (2019) ",
          subtitle = "Only people with the type of income",
          y = "",
-         caption = "Data source: Statistics Denmark \nAuthor: J. Elio (@Elio_Javi)") +
+         caption = "Data source: Statistics Denmark \nAuthor: J. Elio (@Elio_Javi)\nAalborg University, Department of Planning") +
     theme_bw() +
     facet_wrap( ~ unit)
   
@@ -98,11 +98,11 @@ library(ggpyramid)
               men = "Men",
               women = "Women",
               fill = gender) +
-    scale_fill_manual(values = c("#E69F00", "#009E73")) + 
+    scale_fill_manual(name = "Gender", values = c("#E69F00", "#009E73")) + 
     scale_y_continuous(name = NULL, breaks = brks_y, limits = lmts_y) +
     labs(title = "Wages and salaries in Denmark (Constant prices in kDKK) ",
          subtitle = "Date: {closest_state}",
-         caption = "Data: Only people with the type of income\nSource: Statistics Denmark \nAuthor: J. Elio (@Elio_Javi)") +
+         caption = "Data: Only people with the type of income\nSource: Statistics Denmark \nAuthor: J. Elio (@Elio_Javi)\nAalborg University, Department of Planning") +
     theme_bw() +
     facet_wrap( ~ unit) +
     transition_states(date)
