@@ -24,16 +24,16 @@ All the data I use here are public from the following data sources:
 
 Each R-script is independent with enough information for downloading the required data and plotting the respective figures.  
 
-  - *DK_adm_units*: get spatial data of Denmark at diverse administrative unit levels (i.e. country, regions, provinces, LAUs, and communes).
-  - *pop_pyramid*: population pyramid of Denmark.
-  - *pop_growth_DK*: population growth in Denmark.
-  - *pop_growth_LAUs*: Chards showing the population change by Local Administrative Units (LAUs) from 2008 to 2020. 
-  - *pop_growth_LAUs_maps*: Maps showing the population change by Local Administrative Units (LAUs) from 2008 to 2020.
-  - *pop_growth_LAUs_animation*: animation (.gif) showing the population change by Local Administrative Units (LAUs) from 2008 to 2020.
-  - *migrants_DK*: immigrants and their descendants in Denmark, evolution of the top 10 countries of origin.  
-  - *migrants_LAUs_maps*: maps showing where immigrants and their descendants live. 
-  - *OMS_data_CPH*: get data from Open Street Map.
-  - *Wages_salaries*: Wages and salaries Denmark.
+  - *[DK_adm_units](https://github.com/javiereliomedina/Migration_DK_FLOW/blob/master/Code/DK_Adm_Units.R)*: get spatial data of Denmark at diverse administrative unit levels (i.e. country, regions, provinces, LAUs, and communes).
+  - *[pop_pyramid](https://github.com/javiereliomedina/Migration_DK_FLOW/blob/master/Code/pop_pyramid.R)*: population pyramid of Denmark.
+  - *[pop_growth_DK](https://github.com/javiereliomedina/Migration_DK_FLOW/blob/master/Code/pop_growth_DK.R)*: population growth in Denmark.
+  - *[pop_growth_LAUs](https://github.com/javiereliomedina/Migration_DK_FLOW/blob/master/Code/pop_growth_LAUs.R)*: Chards showing the population change by Local Administrative Units (LAUs) from 2008 to 2020. 
+  - *[pop_growth_LAUs_maps](https://github.com/javiereliomedina/Migration_DK_FLOW/blob/master/Code/pop_growth_LAUs_maps.R)*: Maps showing the population change by Local Administrative Units (LAUs) from 2008 to 2020.
+  - *[pop_growth_LAUs_animation](https://github.com/javiereliomedina/Migration_DK_FLOW/blob/master/Code/pop_growth_LAUs_animation.R)*: animation (.gif) showing the population change by Local Administrative Units (LAUs) from 2008 to 2020.
+  - *[migrants_DK](https://github.com/javiereliomedina/Migration_DK_FLOW/blob/master/Code/migrants_DK.R)*: immigrants and their descendants in Denmark, evolution of the top 10 countries of origin.  
+  - *[migrants_LAUs_maps](https://github.com/javiereliomedina/Migration_DK_FLOW/blob/master/Code/migrants_LAUs_maps.R)*: maps showing where immigrants and their descendants live. 
+  - *[OMS_data_CPH](https://github.com/javiereliomedina/Migration_DK_FLOW/blob/master/Code/OMS_data_CPH.R)*: get data from Open Street Map.
+  - *[Wages_salaries](https://github.com/javiereliomedina/Migration_DK_FLOW/blob/master/Code/Wages_salaries.R)*: Wages and salaries Denmark.
 
 # Notes
 
