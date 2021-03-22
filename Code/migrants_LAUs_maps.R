@@ -114,7 +114,7 @@
 ## Total foreign population by LAU (and percentage over the total migrants)
 ## Binds represent the same percentage of population (~20%)
 
-  cumsum__breaks <- c(0, 21, 40.0, 60.0, 80.0, 100)
+  cumsum__breaks <- c(0, 25, 50, 75, 100)
   
   pop_migr_lau_2020Q4 %>% 
     filter(ancestry == "Total") %>% 
