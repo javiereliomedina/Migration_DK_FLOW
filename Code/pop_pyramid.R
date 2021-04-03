@@ -107,7 +107,7 @@
   lmts_y = c(min(brks_y), max(brks_y))
   lbls_y <- paste0(as.character(abs(brks_y)), "%")
   pop_DK %>% 
-    ggpyramid(pop = pop_per, fill = ancestry) +
+    ggpyramid(values = pop_per, fill = ancestry) +
     scale_fill_manual(name = "Ancestry", values = c("#0072B2", "#F0E442", "#D55E00")) +
     scale_y_continuous(name = NULL, breaks = brks_y, labels = lbls_y, limits = lmts_y) +
     labs(title = "Population pyramith of Denmark",
