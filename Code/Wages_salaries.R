@@ -75,7 +75,7 @@ library(ggpyramid)
            unit != "People (Number)") %>% 
     mutate(unit = gsub("DKK", "kDKK", unit)) %>% 
     ggpyramid(age = age,
-              pop = value/1000,
+              values = value/1000,
               gender = gender,
               men = "Men",
               women = "Women",
@@ -95,7 +95,7 @@ library(ggpyramid)
     filter(unit != "People (Number)") %>%
     mutate(unit = gsub("DKK", "kDKK", unit)) %>% 
     ggpyramid(age = age,
-              pop = value/1000,
+              values = value/1000,
               gender = gender,
               men = "Men",
               women = "Women",
